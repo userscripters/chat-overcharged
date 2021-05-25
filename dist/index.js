@@ -78,6 +78,9 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
                 form: 'link-form',
                 modal: 'link-modal',
             },
+            quotas: {
+                api: 'api-quotas',
+            },
         },
         classes: {
             links: {
@@ -85,6 +88,11 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
             },
             styles: {
                 collapsed: 'collapsed',
+                primaryBckg: 'bckg-primary',
+                primaryColor: 'color-primary',
+            },
+            quotas: {
+                api: 'api-quotas',
             },
         },
     };
@@ -94,16 +102,19 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         var sheet = style.sheet;
         if (!sheet)
             return;
-        var _a = cnf.classes, links = _a.links, styles = _a.styles;
+        var _a = cnf.classes, links = _a.links, styles = _a.styles, quotas = _a.quotas;
         sheet.insertRule("\n        :root {\n            --white: #c4c8cc;\n            --black: #2d2d2d;\n            --button-primary: #378ad3;\n        }");
+        sheet.insertRule("\n        ." + styles.primaryBckg + " {\n            background-color: var(--black) !important;\n        }");
+        sheet.insertRule("\n        ." + styles.primaryColor + " {\n            color: var(--white) !important;\n        }");
         sheet.insertRule("\n        ." + links.modal + " .iconClear {\n            position: absolute;\n            top: 0;\n            right: 0;\n            margin: 1vh;\n            fill: var(--white);\n        }");
-        sheet.insertRule("\n        ." + links.modal + " {\n            position: fixed;\n            top: calc(100% / 3);\n            left: calc(100% / 3);\n            display: flex;\n            flex-direction: column;\n            align-items: center;\n            justify-content: center;\n            border-radius: 1vh;\n            z-index: 9999;\n            max-width: 50vw;\n            max-height: 25vh;\n            background-color: var(--black);\n            overflow: hidden;\n\n            transition: max-width 0.1s linear, max-height 0.1s linear;\n        }");
+        sheet.insertRule("\n        ." + links.modal + " {\n            position: fixed;\n            top: calc(100% / 3);\n            left: calc(100% / 3);\n            display: flex;\n            flex-direction: column;\n            align-items: center;\n            justify-content: center;\n            border-radius: 1vh;\n            z-index: 9999;\n            max-width: 50vw;\n            max-height: 25vh;\n            overflow: hidden;\n\n            transition: max-width 0.1s linear, max-height 0.1s linear;\n        }");
         sheet.insertRule("\n        ." + styles.collapsed + " {\n            max-width: 0px !important;\n            max-height: 0px !important;\n        }");
         sheet.insertRule("\n        ." + links.modal + " form {\n            padding: 1vh 1vw;\n        }");
         sheet.insertRule("\n        ." + links.modal + " input {\n            box-sizing: border-box;\n            border-radius: 0.5vh;\n            padding: 1vh 1vw;\n            width: 100%;\n            outline: none;\n            background: none;\n            color: var(--white);\n        }");
         sheet.insertRule("\n        ." + links.modal + " label {\n            display: inline-block;\n            margin: 0 0 1vh 0.25vw;\n            color: var(--white);\n            font-size: 0.9rem;\n        }");
         sheet.insertRule("\n        ." + links.modal + " button {\n            height: 4vh;\n            min-width: 8vh;\n            border-radius: 0.5vh 0.5vw;\n            border: none;\n            background-color: rgb(55, 138, 211);\n            color: white;\n        }");
-        sheet.insertRule("\n        ." + links.modal + " button:hover {\n          background-color: #3ca4ff;\n        }");
+        sheet.insertRule("\n        ." + links.modal + " button:hover {\n            background-color: #3ca4ff;\n        }");
+        sheet.insertRule("\n        ." + links.modal + " ." + quotas.api + " {\n            cursor: initial;\n            margin-left: 0.5vw;\n            color: var(--black);\n            transition: color 0.5s linear 0s;\n        }");
         sheet.insertRule("\n        ." + links.modal + " input {\n            margin-bottom: 1vh;\n        }");
     };
     var createIcon = function (name, pathConfig) {
@@ -135,17 +146,37 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         btn.textContent = text;
         return btn;
     };
+    var createQuotaInfo = function (id, cls) {
+        var span = document.createElement('span');
+        span.classList.add(cls);
+        span.textContent = 'SE API quota remaining: ';
+        var quota = document.createElement('span');
+        quota.id = id;
+        span.append(quota);
+        return span;
+    };
+    var updateQuotaInfo = function (id, colorCls, quota) {
+        var quotaElem = d.getElementById(id);
+        if (!quotaElem)
+            return;
+        var parentElement = quotaElem.parentElement;
+        if (!parentElement)
+            return;
+        quotaElem.textContent = quota.toString();
+        parentElement.classList.add(colorCls);
+        setTimeout(function () { return parentElement.classList.remove(colorCls); }, 3e3);
+    };
     var makeLinkMarkdown = function (text, link) { return "[" + text + "](" + link + ")"; };
-    var isSElink = function (link) {
+    var isStackExchangeLink = function (link) {
         return /https?:\/\/(www\.)?(meta\.)?stackoverflow\.com/.test(link);
     };
-    var fetchTitleFromAPI = function (link, site) {
+    var fetchTitleFromAPI = function (link, quotaLeft, site) {
         if (site === void 0) { site = 'stackoverflow'; }
         return __awaiter(void 0, void 0, void 0, function () {
-            var version, base, exprs, id, exprs_1, exprs_1_1, regex, matcher, _a, postId, res, items, _b, title;
-            var e_1, _c;
-            return __generator(this, function (_d) {
-                switch (_d.label) {
+            var version, base, exprs, id, exprs_1, exprs_1_1, regex, matcher, _a, postId, noResponse, res, _b, items, quota_remaining, _c, title;
+            var e_1, _d;
+            return __generator(this, function (_e) {
+                switch (_e.label) {
                     case 0:
                         version = 2.2;
                         base = "https://api.stackexchange.com/" + version;
@@ -168,24 +199,25 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
                         catch (e_1_1) { e_1 = { error: e_1_1 }; }
                         finally {
                             try {
-                                if (exprs_1_1 && !exprs_1_1.done && (_c = exprs_1.return)) _c.call(exprs_1);
+                                if (exprs_1_1 && !exprs_1_1.done && (_d = exprs_1.return)) _d.call(exprs_1);
                             }
                             finally { if (e_1) throw e_1.error; }
                         }
+                        noResponse = ['', quotaLeft];
                         if (!id)
-                            return [2, ''];
+                            return [2, noResponse];
                         return [4, fetch(base + "/posts/" + id + "?site=" + site + "&filter=Bqe1ika.a")];
                     case 1:
-                        res = _d.sent();
+                        res = _e.sent();
                         if (!res.ok)
-                            return [2, ''];
+                            return [2, noResponse];
                         return [4, res.json()];
                     case 2:
-                        items = (_d.sent()).items;
+                        _b = _e.sent(), items = _b.items, quota_remaining = _b.quota_remaining;
                         if (!items.length)
-                            return [2, ''];
-                        _b = __read(items, 1), title = _b[0].title;
-                        return [2, title];
+                            return [2, noResponse];
+                        _c = __read(items, 1), title = _c[0].title;
+                        return [2, [title, quota_remaining]];
                 }
             });
         });
@@ -250,7 +282,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         if (existing)
             return openExistingModal(existing, selectedText, collapsed);
         var modal = d.createElement('div');
-        modal.classList.add(classes.links.modal, collapsed);
+        modal.classList.add(classes.links.modal, classes.styles.primaryBckg, collapsed);
         modal.id = 'link-modal';
         var closeIcon = createClearIcon();
         closeIcon.addEventListener('click', function () {
@@ -263,23 +295,32 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         var titleInput = d.createElement('input');
         titleInput.type = 'text';
         titleInput.value = selectedText;
+        var quotaInfo = createQuotaInfo(ids.quotas.api, classes.quotas.api);
+        var quota = 300;
         linkInput.addEventListener('change', function () { return __awaiter(void 0, void 0, void 0, function () {
-            var value, _a, _b;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
+            var value, isSElink, _a, title, quotaLeft, _b, _c;
+            return __generator(this, function (_d) {
+                switch (_d.label) {
                     case 0:
                         value = linkInput.value;
-                        _a = titleInput.value;
-                        if (_a) return [3, 2];
-                        _b = titleInput;
-                        return [4, (isSElink(value)
-                                ? fetchTitleFromAPI(value)
-                                : fetchTitle(value))];
+                        isSElink = isStackExchangeLink(value);
+                        if (!isSElink) return [3, 2];
+                        return [4, fetchTitleFromAPI(value, quota)];
                     case 1:
-                        _a = (_b.value = _c.sent());
-                        _c.label = 2;
+                        _a = __read.apply(void 0, [_d.sent(), 2]), title = _a[0], quotaLeft = _a[1];
+                        titleInput.value || (titleInput.value = title);
+                        quota = quotaLeft;
+                        return [2, updateQuotaInfo(ids.quotas.api, classes.styles.primaryColor, quota)];
                     case 2:
-                        _a;
+                        _b = titleInput.value;
+                        if (_b) return [3, 4];
+                        _c = titleInput;
+                        return [4, fetchTitle(value)];
+                    case 3:
+                        _b = (_c.value = _d.sent());
+                        _d.label = 4;
+                    case 4:
+                        _b;
                         return [2];
                 }
             });
@@ -292,7 +333,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
             insertLinkToMessage(ids.chat.anchor, ids.chat.input, createdLink);
             modal.classList.add(collapsed);
         });
-        form.append(linkLbl, linkInput, titleLbl, titleInput, submit);
+        form.append(linkLbl, linkInput, titleLbl, titleInput, submit, quotaInfo);
         modal.append(closeIcon, form);
         var body = d.body;
         body.append(modal);

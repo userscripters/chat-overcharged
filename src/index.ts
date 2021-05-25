@@ -19,12 +19,16 @@ type Config = {
       form: string;
       modal: string;
     };
+    quotas: {
+      api: string;
+    };
   };
   classes: {
     links: {
       modal: string;
     };
-    styles: { collapsed: string };
+    styles: { collapsed: string; primaryBckg: string; primaryColor: string };
+    quotas: { api: string };
   };
 };
 
@@ -41,6 +45,8 @@ type PostInfo = {
   title: string;
 };
 
+type ApiRes = { items: PostInfo[]; quota_remaining: number };
+
 ((w, d) => {
     const config: Config = {
         ids: {
@@ -52,6 +58,9 @@ type PostInfo = {
                 form: 'link-form',
                 modal: 'link-modal',
             },
+            quotas: {
+                api: 'api-quotas',
+            },
         },
         classes: {
             links: {
@@ -59,6 +68,11 @@ type PostInfo = {
             },
             styles: {
                 collapsed: 'collapsed',
+                primaryBckg: 'bckg-primary',
+                primaryColor: 'color-primary',
+            },
+            quotas: {
+                api: 'api-quotas',
             },
         },
     };
@@ -71,7 +85,7 @@ type PostInfo = {
         if (!sheet) return;
 
         const {
-            classes: { links, styles },
+            classes: { links, styles, quotas },
         } = cnf;
 
         sheet.insertRule(`
@@ -79,6 +93,16 @@ type PostInfo = {
             --white: #c4c8cc;
             --black: #2d2d2d;
             --button-primary: #378ad3;
+        }`);
+
+        sheet.insertRule(`
+        .${styles.primaryBckg} {
+            background-color: var(--black) !important;
+        }`);
+
+        sheet.insertRule(`
+        .${styles.primaryColor} {
+            color: var(--white) !important;
         }`);
 
         sheet.insertRule(`
@@ -103,7 +127,6 @@ type PostInfo = {
             z-index: 9999;
             max-width: 50vw;
             max-height: 25vh;
-            background-color: var(--black);
             overflow: hidden;
 
             transition: max-width 0.1s linear, max-height 0.1s linear;
@@ -151,7 +174,15 @@ type PostInfo = {
 
         sheet.insertRule(`
         .${links.modal} button:hover {
-          background-color: #3ca4ff;
+            background-color: #3ca4ff;
+        }`);
+
+        sheet.insertRule(`
+        .${links.modal} .${quotas.api} {
+            cursor: initial;
+            margin-left: 0.5vw;
+            color: var(--black);
+            transition: color 0.5s linear 0s;
         }`);
 
         sheet.insertRule(`
@@ -197,13 +228,39 @@ type PostInfo = {
         return btn;
     };
 
+    const createQuotaInfo = (id: string, cls: string) => {
+        const span = document.createElement('span');
+        span.classList.add(cls);
+        span.textContent = 'SE API quota remaining: ';
+
+        const quota = document.createElement('span');
+        quota.id = id;
+        span.append(quota);
+
+        return span;
+    };
+
+    const updateQuotaInfo = (id: string, colorCls: string, quota: number) => {
+        const quotaElem = d.getElementById(id);
+        if (!quotaElem) return;
+        const { parentElement } = quotaElem;
+        if (!parentElement) return;
+        quotaElem.textContent = quota.toString();
+        parentElement.classList.add(colorCls);
+        setTimeout(() => parentElement.classList.remove(colorCls), 3e3);
+    };
+
     const makeLinkMarkdown = (text: string, link: string) => `[${text}](${link})`;
 
     //for now, we are only interested in SO / Meta SO links
-    const isSElink = (link: string) =>
+    const isStackExchangeLink = (link: string) =>
         /https?:\/\/(www\.)?(meta\.)?stackoverflow\.com/.test(link);
 
-    const fetchTitleFromAPI = async (link: string, site = 'stackoverflow') => {
+    const fetchTitleFromAPI = async (
+        link: string,
+        quotaLeft: number,
+        site = 'stackoverflow'
+    ) => {
         const version = 2.2;
 
         const base = `https://api.stackexchange.com/${version}`;
@@ -224,20 +281,22 @@ type PostInfo = {
             break;
         }
 
-        if (!id) return '';
+        const noResponse = ['', quotaLeft] as const;
+
+        if (!id) return noResponse;
 
         const res = await fetch(
             `${base}/posts/${id}?site=${site}&filter=Bqe1ika.a`
         );
 
-        if (!res.ok) return '';
+        if (!res.ok) return noResponse;
 
-        const { items } = <{ items: PostInfo[] }> await res.json();
+        const { items, quota_remaining } = <ApiRes> await res.json();
 
-        if (!items.length) return '';
+        if (!items.length) return noResponse;
 
         const [{ title }] = items;
-        return title;
+        return [title, quota_remaining] as const;
     };
 
     const fetchTitle = async (link: string) => {
@@ -314,7 +373,11 @@ type PostInfo = {
         if (existing) return openExistingModal(existing, selectedText, collapsed);
 
         const modal = d.createElement('div');
-        modal.classList.add(classes.links.modal, collapsed);
+        modal.classList.add(
+            classes.links.modal,
+            classes.styles.primaryBckg,
+            collapsed
+        );
         modal.id = 'link-modal';
 
         const closeIcon = createClearIcon();
@@ -332,11 +395,26 @@ type PostInfo = {
         titleInput.type = 'text';
         titleInput.value = selectedText;
 
+        const quotaInfo = createQuotaInfo(ids.quotas.api, classes.quotas.api);
+
+        let quota = 300;
         linkInput.addEventListener('change', async () => {
             const { value } = linkInput;
-            titleInput.value ||= await (isSElink(value)
-                ? fetchTitleFromAPI(value)
-                : fetchTitle(value));
+
+            const isSElink = isStackExchangeLink(value);
+
+            if (isSElink) {
+                const [title, quotaLeft] = await fetchTitleFromAPI(value, quota);
+                titleInput.value ||= title;
+                quota = quotaLeft;
+                return updateQuotaInfo(
+                    ids.quotas.api,
+                    classes.styles.primaryColor,
+                    quota
+                );
+            }
+
+            titleInput.value ||= await fetchTitle(value);
         });
 
         const linkLbl = createInputLabel(linkInput, 'Link');
@@ -349,7 +427,7 @@ type PostInfo = {
             modal.classList.add(collapsed);
         });
 
-        form.append(linkLbl, linkInput, titleLbl, titleInput, submit);
+        form.append(linkLbl, linkInput, titleLbl, titleInput, submit, quotaInfo);
         modal.append(closeIcon, form);
 
         const { body } = d;

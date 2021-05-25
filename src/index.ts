@@ -36,6 +36,11 @@ type Shortcut = {
   action: (cnf: Config, shorcut: Shortcut) => void;
 };
 
+type PostInfo = {
+  post_id: number;
+  title: string;
+};
+
 ((_w, d) => {
     const config: Config = {
         ids: {
@@ -194,6 +199,69 @@ type Shortcut = {
 
     const makeLinkMarkdown = (text: string, link: string) => `[${text}](${link})`;
 
+    //for now, we are only interested in SO / Meta SO links
+    const isSElink = (link: string) =>
+        /https?:\/\/(www\.)?(meta\.)?stackoverflow\.com/.test(link);
+
+    const fetchTitleFromAPI = async (link: string, site = 'stackoverflow') => {
+        const version = 2.2;
+
+        const base = `https://api.stackexchange.com/${version}`;
+
+        //TODO: match comments
+        const exprs = [
+            'https?:\\/\\/stackoverflow\\.com\\/questions\\/\\d+\\/.+?\\/(\\d+)', //answers
+            `https?:\\/\\/${site}.com\\/questions\\/(\\d+)\\/.+?(?:\\/(\\d+)|$)`, //questions
+            `https?:\\/\\/${site}.com\\/(?:a|q)\\/(\\d+)`, //share links
+        ];
+
+        let id!: string;
+        for (const regex of exprs) {
+            const matcher = new RegExp(regex, 'i');
+            const [, postId] = link.match(matcher) || [];
+            if (!postId) continue;
+            id = postId;
+            break;
+        }
+
+        if (!id) return '';
+
+        const res = await fetch(
+            `${base}/posts/${id}?site=${site}&filter=Bqe1ika.a`
+        );
+
+        if (!res.ok) return '';
+
+        const { items } = <{ items: PostInfo[] }> await res.json();
+
+        if (!items.length) return '';
+
+        const [{ title }] = items;
+        return title;
+    };
+
+    const fetchTitle = async (link: string) => {
+        try {
+            const res = await fetch(link);
+            if (res.status !== 200) return '';
+
+            const content = await res.text();
+
+            const parsedDoc = new DOMParser().parseFromString(content, 'text/html');
+
+            //try to get OpenGraph title;
+            const meta = parsedDoc.querySelector<HTMLMetaElement>(
+                "[property='og:title']"
+            );
+
+            const { title } = parsedDoc;
+            return meta ? meta.content : title;
+        } catch (error) {
+            console.debug(`failed to fetch link or parse: ${error}`);
+            return '';
+        }
+    };
+
     const insertLinkToMessage = (
         inputId: string,
         link: string,
@@ -255,6 +323,13 @@ type Shortcut = {
         const titleInput = d.createElement('input');
         titleInput.type = 'text';
         titleInput.value = originalText;
+
+        linkInput.addEventListener('change', async () => {
+            const { value } = linkInput;
+            titleInput.value ||= await (isSElink(value)
+                ? fetchTitleFromAPI(value)
+                : fetchTitle(value));
+        });
 
         const linkLbl = createInputLabel(linkInput, 'Link');
         const titleLbl = createInputLabel(titleInput, 'Title');

@@ -36,7 +36,10 @@
     "semi": "error",
     "space-in-parens": "off",
     "@typescript-eslint/explicit-function-return-type": "off",
-    "@typescript-eslint/no-misused-promises": "error",
+    "@typescript-eslint/no-misused-promises": [
+      "error",
+      { "checksVoidReturn": false }
+    ],
     "func-call-spacing": "error",
     "no-param-reassign": "error",
     "no-tabs": "error",

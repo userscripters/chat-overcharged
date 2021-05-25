@@ -41,7 +41,7 @@ type PostInfo = {
   title: string;
 };
 
-((_w, d) => {
+((w, d) => {
     const config: Config = {
         ids: {
             chat: {
@@ -262,20 +262,32 @@ type PostInfo = {
         }
     };
 
+    const getChatInputSelection = (anchorId: string) => {
+        const selection = w.getSelection();
+        if (!selection) return;
+        const { anchorNode } = selection;
+        if (!anchorNode || (<HTMLElement>anchorNode).id !== anchorId) return;
+        return selection;
+    };
+
     const insertLinkToMessage = (
+        anchorId: string,
         inputId: string,
-        link: string,
-        originalText: string
+        link: string
     ) => {
         const existing = d.getElementById<HTMLTextAreaElement>(inputId);
         if (!existing) return false;
-        existing.value = existing.value.replace(originalText, link);
+
+        const selection = getChatInputSelection(anchorId);
+        const selectedText = selection?.toString() || '';
+
+        existing.value = existing.value.replace(selectedText, link);
         return true;
     };
 
     const openExistingModal = (
         element: HTMLElement,
-        selection: Selection,
+        selectedText: string,
         cls: string
     ) => {
         const { classList } = element;
@@ -284,24 +296,22 @@ type PostInfo = {
         const [_link, title] = [
             ...element.querySelectorAll<HTMLInputElement>('input'),
         ];
-        title.value = selection.toString();
+        title.value = selectedText;
 
         return isClosed && classList.remove(cls);
     };
 
     const openLinkModal = ({ ids, classes }: Config) => {
-        const selection = window.getSelection();
-        if (!selection) return;
-
-        const { anchorNode } = selection;
-        if (!anchorNode || (<HTMLElement>anchorNode).id !== ids.chat.anchor) return;
+        const selection = getChatInputSelection(ids.chat.anchor);
 
         const {
             styles: { collapsed },
         } = classes;
 
+        const selectedText = selection?.toString() || '';
+
         const existing = d.getElementById(ids.links.modal);
-        if (existing) return openExistingModal(existing, selection, collapsed);
+        if (existing) return openExistingModal(existing, selectedText, collapsed);
 
         const modal = d.createElement('div');
         modal.classList.add(classes.links.modal, collapsed);
@@ -318,11 +328,9 @@ type PostInfo = {
         const linkInput = d.createElement('input');
         linkInput.type = 'text';
 
-        const originalText = selection.toString();
-
         const titleInput = d.createElement('input');
         titleInput.type = 'text';
-        titleInput.value = originalText;
+        titleInput.value = selectedText;
 
         linkInput.addEventListener('change', async () => {
             const { value } = linkInput;
@@ -337,7 +345,7 @@ type PostInfo = {
         const submit = createButton('Add link');
         submit.addEventListener('click', () => {
             const createdLink = makeLinkMarkdown(titleInput.value, linkInput.value);
-            insertLinkToMessage(ids.chat.input, createdLink, originalText);
+            insertLinkToMessage(ids.chat.anchor, ids.chat.input, createdLink);
             modal.classList.add(collapsed);
         });
 

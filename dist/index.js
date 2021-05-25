@@ -67,7 +67,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         to[j] = from[i];
     return to;
 };
-(function (_w, d) {
+(function (w, d) {
     var config = {
         ids: {
             chat: {
@@ -216,32 +216,39 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
             }
         });
     }); };
-    var insertLinkToMessage = function (inputId, link, originalText) {
+    var getChatInputSelection = function (anchorId) {
+        var selection = w.getSelection();
+        if (!selection)
+            return;
+        var anchorNode = selection.anchorNode;
+        if (!anchorNode || anchorNode.id !== anchorId)
+            return;
+        return selection;
+    };
+    var insertLinkToMessage = function (anchorId, inputId, link) {
         var existing = d.getElementById(inputId);
         if (!existing)
             return false;
-        existing.value = existing.value.replace(originalText, link);
+        var selection = getChatInputSelection(anchorId);
+        var selectedText = (selection === null || selection === void 0 ? void 0 : selection.toString()) || '';
+        existing.value = existing.value.replace(selectedText, link);
         return true;
     };
-    var openExistingModal = function (element, selection, cls) {
+    var openExistingModal = function (element, selectedText, cls) {
         var classList = element.classList;
         var isClosed = classList.contains(cls);
         var _a = __read(__spreadArray([], __read(element.querySelectorAll('input'))), 2), _link = _a[0], title = _a[1];
-        title.value = selection.toString();
+        title.value = selectedText;
         return isClosed && classList.remove(cls);
     };
     var openLinkModal = function (_a) {
         var ids = _a.ids, classes = _a.classes;
-        var selection = window.getSelection();
-        if (!selection)
-            return;
-        var anchorNode = selection.anchorNode;
-        if (!anchorNode || anchorNode.id !== ids.chat.anchor)
-            return;
+        var selection = getChatInputSelection(ids.chat.anchor);
         var collapsed = classes.styles.collapsed;
+        var selectedText = (selection === null || selection === void 0 ? void 0 : selection.toString()) || '';
         var existing = d.getElementById(ids.links.modal);
         if (existing)
-            return openExistingModal(existing, selection, collapsed);
+            return openExistingModal(existing, selectedText, collapsed);
         var modal = d.createElement('div');
         modal.classList.add(classes.links.modal, collapsed);
         modal.id = 'link-modal';
@@ -253,10 +260,9 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         form.id = ids.links.form;
         var linkInput = d.createElement('input');
         linkInput.type = 'text';
-        var originalText = selection.toString();
         var titleInput = d.createElement('input');
         titleInput.type = 'text';
-        titleInput.value = originalText;
+        titleInput.value = selectedText;
         linkInput.addEventListener('change', function () { return __awaiter(void 0, void 0, void 0, function () {
             var value, _a, _b;
             return __generator(this, function (_c) {
@@ -283,7 +289,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         var submit = createButton('Add link');
         submit.addEventListener('click', function () {
             var createdLink = makeLinkMarkdown(titleInput.value, linkInput.value);
-            insertLinkToMessage(ids.chat.input, createdLink, originalText);
+            insertLinkToMessage(ids.chat.anchor, ids.chat.input, createdLink);
             modal.classList.add(collapsed);
         });
         form.append(linkLbl, linkInput, titleLbl, titleInput, submit);

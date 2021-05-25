@@ -254,22 +254,21 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
 
     //for now, we are only interested in SO / Meta SO links
     const isStackExchangeLink = (link: string) =>
-        /https?:\/\/(www\.)?(meta\.)?stackoverflow\.com/.test(link);
+        /https?:\/\/(www\.)?(meta\.)?stack(?:overflow|exchange)\.com/.test(link);
 
-    const fetchTitleFromAPI = async (
-        link: string,
-        quotaLeft: number,
-        site = 'stackoverflow'
-    ) => {
+    const fetchTitleFromAPI = async (link: string, quotaLeft: number) => {
         const version = 2.2;
 
         const base = `https://api.stackexchange.com/${version}`;
 
+        const [, site = 'stackoverflow'] =
+      link.match(/((?:meta\.)?[\w-]+)\.com/i) || [];
+
         //TODO: match comments
         const exprs = [
-            'https?:\\/\\/stackoverflow\\.com\\/questions\\/\\d+\\/.+?\\/(\\d+)', //answers
-            `https?:\\/\\/${site}.com\\/questions\\/(\\d+)\\/.+?(?:\\/(\\d+)|$)`, //questions
-            `https?:\\/\\/${site}.com\\/(?:a|q)\\/(\\d+)`, //share links
+            `https?:\\/\\/${site}\\.com\\/questions\\/\\d+\\/.+?\\/(\\d+)`, //answers
+            `https?:\\/\\/${site}\\.com\\/questions\\/(\\d+)\\/.+?(?:\\/(\\d+)|$)`, //questions
+            `https?:\\/\\/${site}\\.com\\/(?:a|q)\\/(\\d+)`, //share links
         ];
 
         let id!: string;

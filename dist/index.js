@@ -35,17 +35,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __values = (this && this.__values) || function(o) {
-    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-    if (m) return m.call(o);
-    if (o && typeof o.length === "number") return {
-        next: function () {
-            if (o && i >= o.length) o = void 0;
-            return { value: o && o[i++], done: !o };
-        }
-    };
-    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
-};
 var __read = (this && this.__read) || function (o, n) {
     var m = typeof Symbol === "function" && o[Symbol.iterator];
     if (!m) return o;
@@ -61,6 +50,17 @@ var __read = (this && this.__read) || function (o, n) {
         finally { if (e) throw e.error; }
     }
     return ar;
+};
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
 var __spreadArray = (this && this.__spreadArray) || function (to, from) {
     for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
@@ -168,60 +168,58 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
     };
     var makeLinkMarkdown = function (text, link) { return "[" + text + "](" + link + ")"; };
     var isStackExchangeLink = function (link) {
-        return /https?:\/\/(www\.)?(meta\.)?stackoverflow\.com/.test(link);
+        return /https?:\/\/(www\.)?(meta\.)?stack(?:overflow|exchange)\.com/.test(link);
     };
-    var fetchTitleFromAPI = function (link, quotaLeft, site) {
-        if (site === void 0) { site = 'stackoverflow'; }
-        return __awaiter(void 0, void 0, void 0, function () {
-            var version, base, exprs, id, exprs_1, exprs_1_1, regex, matcher, _a, postId, noResponse, res, _b, items, quota_remaining, _c, title;
-            var e_1, _d;
-            return __generator(this, function (_e) {
-                switch (_e.label) {
-                    case 0:
-                        version = 2.2;
-                        base = "https://api.stackexchange.com/" + version;
-                        exprs = [
-                            'https?:\\/\\/stackoverflow\\.com\\/questions\\/\\d+\\/.+?\\/(\\d+)',
-                            "https?:\\/\\/" + site + ".com\\/questions\\/(\\d+)\\/.+?(?:\\/(\\d+)|$)",
-                            "https?:\\/\\/" + site + ".com\\/(?:a|q)\\/(\\d+)",
-                        ];
+    var fetchTitleFromAPI = function (link, quotaLeft) { return __awaiter(void 0, void 0, void 0, function () {
+        var version, base, _a, _b, site, exprs, id, exprs_1, exprs_1_1, regex, matcher, _c, postId, noResponse, res, _d, items, quota_remaining, _e, title;
+        var e_1, _f;
+        return __generator(this, function (_g) {
+            switch (_g.label) {
+                case 0:
+                    version = 2.2;
+                    base = "https://api.stackexchange.com/" + version;
+                    _a = __read(link.match(/((?:meta\.)?[\w-]+)\.com/i) || [], 2), _b = _a[1], site = _b === void 0 ? 'stackoverflow' : _b;
+                    exprs = [
+                        "https?:\\/\\/" + site + "\\.com\\/questions\\/\\d+\\/.+?\\/(\\d+)",
+                        "https?:\\/\\/" + site + "\\.com\\/questions\\/(\\d+)\\/.+?(?:\\/(\\d+)|$)",
+                        "https?:\\/\\/" + site + "\\.com\\/(?:a|q)\\/(\\d+)",
+                    ];
+                    try {
+                        for (exprs_1 = __values(exprs), exprs_1_1 = exprs_1.next(); !exprs_1_1.done; exprs_1_1 = exprs_1.next()) {
+                            regex = exprs_1_1.value;
+                            matcher = new RegExp(regex, 'i');
+                            _c = __read(link.match(matcher) || [], 2), postId = _c[1];
+                            if (!postId)
+                                continue;
+                            id = postId;
+                            break;
+                        }
+                    }
+                    catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                    finally {
                         try {
-                            for (exprs_1 = __values(exprs), exprs_1_1 = exprs_1.next(); !exprs_1_1.done; exprs_1_1 = exprs_1.next()) {
-                                regex = exprs_1_1.value;
-                                matcher = new RegExp(regex, 'i');
-                                _a = __read(link.match(matcher) || [], 2), postId = _a[1];
-                                if (!postId)
-                                    continue;
-                                id = postId;
-                                break;
-                            }
+                            if (exprs_1_1 && !exprs_1_1.done && (_f = exprs_1.return)) _f.call(exprs_1);
                         }
-                        catch (e_1_1) { e_1 = { error: e_1_1 }; }
-                        finally {
-                            try {
-                                if (exprs_1_1 && !exprs_1_1.done && (_d = exprs_1.return)) _d.call(exprs_1);
-                            }
-                            finally { if (e_1) throw e_1.error; }
-                        }
-                        noResponse = ['', quotaLeft];
-                        if (!id)
-                            return [2, noResponse];
-                        return [4, fetch(base + "/posts/" + id + "?site=" + site + "&filter=Bqe1ika.a")];
-                    case 1:
-                        res = _e.sent();
-                        if (!res.ok)
-                            return [2, noResponse];
-                        return [4, res.json()];
-                    case 2:
-                        _b = _e.sent(), items = _b.items, quota_remaining = _b.quota_remaining;
-                        if (!items.length)
-                            return [2, noResponse];
-                        _c = __read(items, 1), title = _c[0].title;
-                        return [2, [title, quota_remaining]];
-                }
-            });
+                        finally { if (e_1) throw e_1.error; }
+                    }
+                    noResponse = ['', quotaLeft];
+                    if (!id)
+                        return [2, noResponse];
+                    return [4, fetch(base + "/posts/" + id + "?site=" + site + "&filter=Bqe1ika.a")];
+                case 1:
+                    res = _g.sent();
+                    if (!res.ok)
+                        return [2, noResponse];
+                    return [4, res.json()];
+                case 2:
+                    _d = _g.sent(), items = _d.items, quota_remaining = _d.quota_remaining;
+                    if (!items.length)
+                        return [2, noResponse];
+                    _e = __read(items, 1), title = _e[0].title;
+                    return [2, [title, quota_remaining]];
+            }
         });
-    };
+    }); };
     var fetchTitle = function (link) { return __awaiter(void 0, void 0, void 0, function () {
         var res, content, parsedDoc, meta, title, error_1;
         return __generator(this, function (_a) {

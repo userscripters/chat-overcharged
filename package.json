@@ -1,6 +1,6 @@
 {
   "name": "chat-overcharge",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Chat experience improvements",
   "scripts": {
     "test": "mocha",

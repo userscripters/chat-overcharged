@@ -1,7 +1,7 @@
 {
-  "name": "template",
+  "name": "chat-overcharge",
   "version": "1.0.0",
-  "description": "template repository for userscripters' projects",
+  "description": "Chat experience improvements",
   "scripts": {
     "test": "mocha",
     "lint": "eslint src --fix --ext .js,.ts",
@@ -17,8 +17,12 @@
     "type": "git",
     "url": "git+https://github.com/userscripters/template.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "chat",
+    "stackoverflow",
+    "userscript"
+  ],
+  "author": "Oleg Valter",
   "license": "GPL-3.0-or-later",
   "bugs": {
     "url": "https://github.com/userscripters/template/issues"

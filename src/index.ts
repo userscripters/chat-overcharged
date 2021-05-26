@@ -359,12 +359,24 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
         return isClosed && classList.remove(cls);
     };
 
-    const closeModal = (modal: HTMLElement, closeCls: string) => {
+    const refocusChatInput = (
+        submitButton: HTMLButtonElement,
+        inputId: string
+    ) => {
+        submitButton.blur();
+        const input = d.getElementById<HTMLTextAreaElement>(inputId);
+        if (input) input.focus();
+    };
+
+    const closeModal = (
+        modal: HTMLElement,
+        closeCls: string,
+        inputId: string
+    ) => {
         modal.classList.add(closeCls);
         const submitButton =
       modal.querySelector<HTMLButtonElement>('[type=button]');
-        if (!submitButton) return;
-        submitButton.blur();
+        if (submitButton) refocusChatInput(submitButton, inputId);
     };
 
     const openModal = (modal: HTMLElement, openCls: string) => {
@@ -377,6 +389,8 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
         const {
             styles: { collapsed },
         } = classes;
+
+        const { chat } = ids;
 
         const selectedText = selection?.toString() || '';
 
@@ -392,7 +406,9 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
         modal.id = ids.links.modal;
 
         const closeIcon = createClearIcon();
-        closeIcon.addEventListener('click', () => closeModal(modal, collapsed));
+        closeIcon.addEventListener('click', () =>
+            closeModal(modal, collapsed, chat.input)
+        );
 
         const form = d.createElement('form');
         form.id = ids.links.form;
@@ -432,8 +448,8 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
         const submit = createButton('Add link');
         submit.addEventListener('click', () => {
             const createdLink = makeLinkMarkdown(titleInput.value, linkInput.value);
-            insertLinkToMessage(ids.chat.anchor, ids.chat.input, createdLink);
-            closeModal(modal, collapsed);
+            insertLinkToMessage(chat.anchor, chat.input, createdLink);
+            closeModal(modal, collapsed, chat.input);
         });
 
         form.append(linkLbl, linkInput, titleLbl, titleInput, submit, quotaInfo);

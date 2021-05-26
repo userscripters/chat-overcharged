@@ -271,12 +271,17 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         title.value = selectedText;
         return isClosed && classList.remove(cls);
     };
-    var closeModal = function (modal, closeCls) {
+    var refocusChatInput = function (submitButton, inputId) {
+        submitButton.blur();
+        var input = d.getElementById(inputId);
+        if (input)
+            input.focus();
+    };
+    var closeModal = function (modal, closeCls, inputId) {
         modal.classList.add(closeCls);
         var submitButton = modal.querySelector('[type=button]');
-        if (!submitButton)
-            return;
-        submitButton.blur();
+        if (submitButton)
+            refocusChatInput(submitButton, inputId);
     };
     var openModal = function (modal, openCls) {
         modal.classList.remove(openCls);
@@ -285,6 +290,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         var ids = _a.ids, classes = _a.classes;
         var selection = getChatInputSelection(ids.chat.anchor);
         var collapsed = classes.styles.collapsed;
+        var chat = ids.chat;
         var selectedText = (selection === null || selection === void 0 ? void 0 : selection.toString()) || '';
         var existing = d.getElementById(ids.links.modal);
         if (existing)
@@ -293,7 +299,9 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         modal.classList.add(classes.links.modal, classes.styles.primaryBckg, collapsed);
         modal.id = ids.links.modal;
         var closeIcon = createClearIcon();
-        closeIcon.addEventListener('click', function () { return closeModal(modal, collapsed); });
+        closeIcon.addEventListener('click', function () {
+            return closeModal(modal, collapsed, chat.input);
+        });
         var form = d.createElement('form');
         form.id = ids.links.form;
         var linkInput = d.createElement('input');
@@ -336,8 +344,8 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         var submit = createButton('Add link');
         submit.addEventListener('click', function () {
             var createdLink = makeLinkMarkdown(titleInput.value, linkInput.value);
-            insertLinkToMessage(ids.chat.anchor, ids.chat.input, createdLink);
-            closeModal(modal, collapsed);
+            insertLinkToMessage(chat.anchor, chat.input, createdLink);
+            closeModal(modal, collapsed, chat.input);
         });
         form.append(linkLbl, linkInput, titleLbl, titleInput, submit, quotaInfo);
         modal.append(closeIcon, form);

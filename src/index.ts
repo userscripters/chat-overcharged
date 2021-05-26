@@ -359,6 +359,18 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
         return isClosed && classList.remove(cls);
     };
 
+    const closeModal = (modal: HTMLElement, closeCls: string) => {
+        modal.classList.add(closeCls);
+        const submitButton =
+      modal.querySelector<HTMLButtonElement>('[type=button]');
+        if (!submitButton) return;
+        submitButton.blur();
+    };
+
+    const openModal = (modal: HTMLElement, openCls: string) => {
+        modal.classList.remove(openCls);
+    };
+
     const openLinkModal = ({ ids, classes }: Config) => {
         const selection = getChatInputSelection(ids.chat.anchor);
 
@@ -377,12 +389,10 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
             classes.styles.primaryBckg,
             collapsed
         );
-        modal.id = 'link-modal';
+        modal.id = ids.links.modal;
 
         const closeIcon = createClearIcon();
-        closeIcon.addEventListener('click', () => {
-            modal.classList.add(collapsed);
-        });
+        closeIcon.addEventListener('click', () => closeModal(modal, collapsed));
 
         const form = d.createElement('form');
         form.id = ids.links.form;
@@ -423,7 +433,7 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
         submit.addEventListener('click', () => {
             const createdLink = makeLinkMarkdown(titleInput.value, linkInput.value);
             insertLinkToMessage(ids.chat.anchor, ids.chat.input, createdLink);
-            modal.classList.add(collapsed);
+            closeModal(modal, collapsed);
         });
 
         form.append(linkLbl, linkInput, titleLbl, titleInput, submit, quotaInfo);
@@ -432,7 +442,7 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
         const { body } = d;
         body.append(modal);
 
-        modal.classList.remove(collapsed);
+        return openModal(modal, collapsed);
     };
 
     const sameModifiers = (

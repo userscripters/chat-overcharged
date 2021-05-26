@@ -271,6 +271,16 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         title.value = selectedText;
         return isClosed && classList.remove(cls);
     };
+    var closeModal = function (modal, closeCls) {
+        modal.classList.add(closeCls);
+        var submitButton = modal.querySelector('[type=button]');
+        if (!submitButton)
+            return;
+        submitButton.blur();
+    };
+    var openModal = function (modal, openCls) {
+        modal.classList.remove(openCls);
+    };
     var openLinkModal = function (_a) {
         var ids = _a.ids, classes = _a.classes;
         var selection = getChatInputSelection(ids.chat.anchor);
@@ -281,11 +291,9 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
             return openExistingModal(existing, selectedText, collapsed);
         var modal = d.createElement('div');
         modal.classList.add(classes.links.modal, classes.styles.primaryBckg, collapsed);
-        modal.id = 'link-modal';
+        modal.id = ids.links.modal;
         var closeIcon = createClearIcon();
-        closeIcon.addEventListener('click', function () {
-            modal.classList.add(collapsed);
-        });
+        closeIcon.addEventListener('click', function () { return closeModal(modal, collapsed); });
         var form = d.createElement('form');
         form.id = ids.links.form;
         var linkInput = d.createElement('input');
@@ -329,13 +337,13 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         submit.addEventListener('click', function () {
             var createdLink = makeLinkMarkdown(titleInput.value, linkInput.value);
             insertLinkToMessage(ids.chat.anchor, ids.chat.input, createdLink);
-            modal.classList.add(collapsed);
+            closeModal(modal, collapsed);
         });
         form.append(linkLbl, linkInput, titleLbl, titleInput, submit, quotaInfo);
         modal.append(closeIcon, form);
         var body = d.body;
         body.append(modal);
-        modal.classList.remove(collapsed);
+        return openModal(modal, collapsed);
     };
     var sameModifiers = function (_a, ctrlKey, metaKey, shiftKey) {
         var ctrl = _a.ctrl, shift = _a.shift;

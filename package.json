@@ -11,7 +11,8 @@
     "uglify-es5": "uglifyjs dist/index.js --compress --mangle -o dist/index-es5.min.js",
     "build": "tsc && npm run uglify",
     "build-es5": "tsc --target es5 && npm run uglify-es5",
-    "build-all": "npm run prebuild && npm run build && npm run build-es5"
+    "build-all": "npm run prebuild && npm run build && npm run build-es5",
+    "headers-tm": "generate tampermonkey --output dist/headers.js"
   },
   "repository": {
     "type": "git",
@@ -34,7 +35,7 @@
     "@types/node": "^15.6.0",
     "@typescript-eslint/eslint-plugin": "^4.25.0",
     "@typescript-eslint/parser": "^4.25.0",
-    "@userscripters/generate-headers": "1.0.0",
+    "@userscripters/generate-headers": "^1.0.3",
     "chai": "^4.3.4",
     "eslint": "^7.26.0",
     "mocha": "^8.4.0",

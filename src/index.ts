@@ -1,48 +1,52 @@
 interface Document
-  extends Node,
-    DocumentAndElementEventHandlers,
-    DocumentOrShadowRoot,
-    GlobalEventHandlers,
-    NonElementParentNode,
-    ParentNode,
-    XPathEvaluatorBase {
-  getElementById<T extends HTMLElement>(elementId: string): T | null;
+    extends Node,
+        DocumentAndElementEventHandlers,
+        DocumentOrShadowRoot,
+        GlobalEventHandlers,
+        NonElementParentNode,
+        ParentNode,
+        XPathEvaluatorBase {
+    getElementById<T extends HTMLElement>(elementId: string): T | null;
 }
 
 type Config = {
-  ids: {
-    chat: {
-      input: string;
-      anchor: string;
+    ids: {
+        chat: {
+            input: string;
+            anchor: string;
+        };
+        links: {
+            form: string;
+            modal: string;
+        };
+        quotas: {
+            api: string;
+        };
     };
-    links: {
-      form: string;
-      modal: string;
+    classes: {
+        links: {
+            modal: string;
+        };
+        styles: {
+            collapsed: string;
+            primaryBckg: string;
+            primaryColor: string;
+        };
+        quotas: { api: string };
     };
-    quotas: {
-      api: string;
-    };
-  };
-  classes: {
-    links: {
-      modal: string;
-    };
-    styles: { collapsed: string; primaryBckg: string; primaryColor: string };
-    quotas: { api: string };
-  };
 };
 
 type Shortcut = {
-  key: string;
-  ctrl: boolean;
-  shift: boolean;
-  caseSensitive: boolean;
-  action: (cnf: Config, shorcut: Shortcut) => void;
+    key: string;
+    ctrl: boolean;
+    shift: boolean;
+    caseSensitive: boolean;
+    action: (cnf: Config, shorcut: Shortcut) => void;
 };
 
 type PostInfo = {
-  post_id: number;
-  title: string;
+    post_id: number;
+    title: string;
 };
 
 type ApiRes = { items: PostInfo[]; quota_remaining: number };
@@ -250,11 +254,14 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
         setTimeout(() => parentElement.classList.remove(colorCls), 3e3);
     };
 
-    const makeLinkMarkdown = (text: string, link: string) => `[${text}](${link})`;
+    const makeLinkMarkdown = (text: string, link: string) =>
+        `[${text}](${link})`;
 
     //for now, we are only interested in SO / Meta SO links
     const isStackExchangeLink = (link: string) =>
-        /https?:\/\/(www\.)?(meta\.)?stack(?:overflow|exchange)\.com/.test(link);
+        /https?:\/\/(www\.)?(meta\.)?stack(?:overflow|exchange)\.com/.test(
+            link
+        );
 
     const fetchTitleFromAPI = async (link: string, quotaLeft: number) => {
         const version = 2.2;
@@ -262,7 +269,7 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
         const base = `https://api.stackexchange.com/${version}`;
 
         const [, site = 'stackoverflow'] =
-      link.match(/((?:meta\.)?[\w-]+)\.com/i) || [];
+            link.match(/((?:meta\.)?[\w-]+)\.com/i) || [];
 
         //TODO: match comments
         const exprs = [
@@ -305,7 +312,10 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
 
             const content = await res.text();
 
-            const parsedDoc = new DOMParser().parseFromString(content, 'text/html');
+            const parsedDoc = new DOMParser().parseFromString(
+                content,
+                'text/html'
+            );
 
             //try to get OpenGraph title;
             const meta = parsedDoc.querySelector<HTMLMetaElement>(
@@ -343,22 +353,6 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
         return true;
     };
 
-    const openExistingModal = (
-        element: HTMLElement,
-        selectedText: string,
-        cls: string
-    ) => {
-        const { classList } = element;
-        const isClosed = classList.contains(cls);
-
-        const [_link, title] = [
-            ...element.querySelectorAll<HTMLInputElement>('input'),
-        ];
-        title.value = selectedText;
-
-        return isClosed && classList.remove(cls);
-    };
-
     const refocusChatInput = (
         submitButton: HTMLButtonElement,
         inputId: string
@@ -374,13 +368,29 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
         inputId: string
     ) => {
         modal.classList.add(closeCls);
-        const submitButton =
-      modal.querySelector<HTMLButtonElement>('[type=button]');
-        if (submitButton) refocusChatInput(submitButton, inputId);
+        const submitter =
+            modal.querySelector<HTMLButtonElement>('[type=button]');
+        if (submitter) refocusChatInput(submitter, inputId);
     };
 
     const openModal = (modal: HTMLElement, openCls: string) => {
         modal.classList.remove(openCls);
+        const [first] = [...modal.querySelectorAll<HTMLInputElement>('input')];
+        first.focus();
+        return modal;
+    };
+
+    const openExistingModal = (
+        modal: HTMLElement,
+        selectedText: string,
+        cls: string
+    ) => {
+        const [_link, title] = [
+            ...modal.querySelectorAll<HTMLInputElement>('input'),
+        ];
+        title.value = selectedText;
+
+        return openModal(modal, cls);
     };
 
     const openLinkModal = ({ ids, classes }: Config) => {
@@ -395,7 +405,8 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
         const selectedText = selection?.toString() || '';
 
         const existing = d.getElementById(ids.links.modal);
-        if (existing) return openExistingModal(existing, selectedText, collapsed);
+        if (existing)
+            return openExistingModal(existing, selectedText, collapsed);
 
         const modal = d.createElement('div');
         modal.classList.add(
@@ -429,7 +440,10 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
             const isSElink = isStackExchangeLink(value);
 
             if (isSElink) {
-                const [title, quotaLeft] = await fetchTitleFromAPI(value, quota);
+                const [title, quotaLeft] = await fetchTitleFromAPI(
+                    value,
+                    quota
+                );
                 titleInput.value ||= title;
                 quota = quotaLeft;
                 return updateQuotaInfo(
@@ -447,12 +461,22 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
 
         const submit = createButton('Add link');
         submit.addEventListener('click', () => {
-            const createdLink = makeLinkMarkdown(titleInput.value, linkInput.value);
+            const createdLink = makeLinkMarkdown(
+                titleInput.value,
+                linkInput.value
+            );
             insertLinkToMessage(chat.anchor, chat.input, createdLink);
             closeModal(modal, collapsed, chat.input);
         });
 
-        form.append(linkLbl, linkInput, titleLbl, titleInput, submit, quotaInfo);
+        form.append(
+            linkLbl,
+            linkInput,
+            titleLbl,
+            titleInput,
+            submit,
+            quotaInfo
+        );
         modal.append(closeIcon, form);
 
         const { body } = d;
@@ -491,7 +515,7 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
         const shortcut = shortcuts.find(
             (shortcut) =>
                 sameModifiers(shortcut, ctrlKey, metaKey, shiftKey) &&
-        sameKey(shortcut, key)
+                sameKey(shortcut, key)
         );
 
         if (!shortcut) return;

@@ -166,7 +166,9 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         parentElement.classList.add(colorCls);
         setTimeout(function () { return parentElement.classList.remove(colorCls); }, 3e3);
     };
-    var makeLinkMarkdown = function (text, link) { return "[" + text + "](" + link + ")"; };
+    var makeLinkMarkdown = function (text, link) {
+        return "[" + text + "](" + link + ")";
+    };
     var isStackExchangeLink = function (link) {
         return /https?:\/\/(www\.)?(meta\.)?stack(?:overflow|exchange)\.com/.test(link);
     };
@@ -264,13 +266,6 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         existing.value = existing.value.replace(selectedText, link);
         return true;
     };
-    var openExistingModal = function (element, selectedText, cls) {
-        var classList = element.classList;
-        var isClosed = classList.contains(cls);
-        var _a = __read(__spreadArray([], __read(element.querySelectorAll('input'))), 2), _link = _a[0], title = _a[1];
-        title.value = selectedText;
-        return isClosed && classList.remove(cls);
-    };
     var refocusChatInput = function (submitButton, inputId) {
         submitButton.blur();
         var input = d.getElementById(inputId);
@@ -279,12 +274,20 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
     };
     var closeModal = function (modal, closeCls, inputId) {
         modal.classList.add(closeCls);
-        var submitButton = modal.querySelector('[type=button]');
-        if (submitButton)
-            refocusChatInput(submitButton, inputId);
+        var submitter = modal.querySelector('[type=button]');
+        if (submitter)
+            refocusChatInput(submitter, inputId);
     };
     var openModal = function (modal, openCls) {
         modal.classList.remove(openCls);
+        var _a = __read(__spreadArray([], __read(modal.querySelectorAll('input'))), 1), first = _a[0];
+        first.focus();
+        return modal;
+    };
+    var openExistingModal = function (modal, selectedText, cls) {
+        var _a = __read(__spreadArray([], __read(modal.querySelectorAll('input'))), 2), _link = _a[0], title = _a[1];
+        title.value = selectedText;
+        return openModal(modal, cls);
     };
     var openLinkModal = function (_a) {
         var ids = _a.ids, classes = _a.classes;

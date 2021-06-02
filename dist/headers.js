@@ -1,4 +1,3 @@
-
 // ==UserScript==
 // @author          Oleg Valter
 // @description     Chat experience improvements
@@ -6,5 +5,5 @@
 // @name            chat-overcharge
 // @source          git+https://github.com/userscripters/template.git
 // @supportURL      https://github.com/userscripters/template/issues
-// @version         1.4.3
+// @version         1.5.0
 // ==/UserScript==

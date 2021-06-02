@@ -24,6 +24,10 @@ type Config = {
         };
     };
     classes: {
+        buttons: {
+            primary: string;
+            secondary: string;
+        };
         links: {
             modal: string;
         };
@@ -55,41 +59,89 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
     const config: Config = {
         ids: {
             chat: {
-                input: 'input',
-                anchor: 'bubble',
+                input: "input",
+                anchor: "bubble",
             },
             links: {
-                form: 'link-form',
-                modal: 'link-modal',
+                form: "link-form",
+                modal: "link-modal",
             },
             quotas: {
-                api: 'api-quotas',
+                api: "api-quotas",
             },
         },
         classes: {
+            buttons: {
+                primary: "btn-primary",
+                secondary: "btn-secondary",
+            },
             links: {
-                modal: 'link-modal',
+                modal: "link-modal",
             },
             styles: {
-                collapsed: 'collapsed',
-                primaryBckg: 'bckg-primary',
-                primaryColor: 'color-primary',
+                collapsed: "collapsed",
+                primaryBckg: "bckg-primary",
+                primaryColor: "color-primary",
             },
             quotas: {
-                api: 'api-quotas',
+                api: "api-quotas",
             },
         },
     };
 
+    const addButtonStyles = (
+        sheet: CSSStyleSheet,
+        scope: string,
+        primary: string,
+        secondary: string
+    ) => {
+        sheet.insertRule(`
+        .${scope} .${primary},
+        .${scope} .${secondary} {
+            height: 4vh;
+            min-width: 8vh;
+            outline: none;
+            border: none;
+            border-radius: 0.5vh 0.5vw;
+        }`);
+
+        sheet.insertRule(`
+        .${scope} .${primary} {
+            background-color: rgb(55, 138, 211);
+            color: white;
+        }`);
+
+        sheet.insertRule(`
+        .${scope} .${secondary} {
+            background-color: unset;
+            color: var(--white);
+        }`);
+
+        sheet.insertRule(`
+        .${scope} .${primary}:hover {
+            background-color: #3ca4ff;
+        }`);
+
+        sheet.insertRule(`
+        .${scope} .${secondary}:hover {
+            color: white;
+        }`);
+    };
+
     const addScriptStyles = (cnf: Config) => {
-        const style = d.createElement('style');
+        const style = d.createElement("style");
         d.head.append(style);
 
         const { sheet } = style;
         if (!sheet) return;
 
         const {
-            classes: { links, styles, quotas },
+            classes: {
+                buttons: { primary, secondary },
+                links: { modal },
+                styles,
+                quotas,
+            },
         } = cnf;
 
         sheet.insertRule(`
@@ -110,7 +162,7 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
         }`);
 
         sheet.insertRule(`
-        .${links.modal} .iconClear {
+        .${modal} .iconClear {
             position: absolute;
             top: 0;
             right: 0;
@@ -119,7 +171,7 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
         }`);
 
         sheet.insertRule(`
-        .${links.modal} {
+        .${modal} {
             position: fixed;
             top: calc(100% / 3);
             left: calc(100% / 3);
@@ -143,12 +195,12 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
         }`);
 
         sheet.insertRule(`
-        .${links.modal} form {
+        .${modal} form {
             padding: 1vh 1vw;
         }`);
 
         sheet.insertRule(`
-        .${links.modal} input {
+        .${modal} input {
             box-sizing: border-box;
             border-radius: 0.5vh;
             padding: 1vh 1vw;
@@ -159,30 +211,17 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
         }`);
 
         sheet.insertRule(`
-        .${links.modal} label {
+        .${modal} label {
             display: inline-block;
             margin: 0 0 1vh 0.25vw;
             color: var(--white);
             font-size: 0.9rem;
         }`);
 
-        sheet.insertRule(`
-        .${links.modal} button {
-            height: 4vh;
-            min-width: 8vh;
-            border-radius: 0.5vh 0.5vw;
-            border: none;
-            background-color: rgb(55, 138, 211);
-            color: white;
-        }`);
+        addButtonStyles(sheet, modal, primary, secondary);
 
         sheet.insertRule(`
-        .${links.modal} button:hover {
-            background-color: #3ca4ff;
-        }`);
-
-        sheet.insertRule(`
-        .${links.modal} .${quotas.api} {
+        .${modal} .${quotas.api} {
             cursor: initial;
             margin-left: 0.5vw;
             color: var(--black);
@@ -190,23 +229,23 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
         }`);
 
         sheet.insertRule(`
-        .${links.modal} input {
+        .${modal} input {
             margin-bottom: 1vh;
         }`);
     };
 
     const createIcon = (name: string, pathConfig: string) => {
-        const SVG_NS = 'http://www.w3.org/2000/svg';
+        const SVG_NS = "http://www.w3.org/2000/svg";
 
-        const svg = document.createElementNS(SVG_NS, 'svg');
-        svg.classList.add('svg-icon', name);
-        svg.setAttribute('width', '18');
-        svg.setAttribute('height', '18');
-        svg.setAttribute('viewBox', '0 0 18 18');
-        svg.setAttribute('aria-hidden', 'true');
+        const svg = document.createElementNS(SVG_NS, "svg");
+        svg.classList.add("svg-icon", name);
+        svg.setAttribute("width", "18");
+        svg.setAttribute("height", "18");
+        svg.setAttribute("viewBox", "0 0 18 18");
+        svg.setAttribute("aria-hidden", "true");
 
-        const path = document.createElementNS(SVG_NS, 'path');
-        path.setAttribute('d', pathConfig);
+        const path = document.createElementNS(SVG_NS, "path");
+        path.setAttribute("d", pathConfig);
 
         svg.append(path);
         return svg;
@@ -214,30 +253,31 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
 
     const createClearIcon = () =>
         createIcon(
-            'iconClear',
-            'M15 4.41 13.59 3 9 7.59 4.41 3 3 4.41 7.59 9 3 13.59 4.41 15 9 10.41 13.59 15 15 13.59 10.41 9 15 4.41z'
+            "iconClear",
+            "M15 4.41 13.59 3 9 7.59 4.41 3 3 4.41 7.59 9 3 13.59 4.41 15 9 10.41 13.59 15 15 13.59 10.41 9 15 4.41z"
         );
 
     const createInputLabel = ({ id }: HTMLInputElement, text: string) => {
-        const lbl = document.createElement('label');
+        const lbl = document.createElement("label");
         lbl.htmlFor = id;
         lbl.textContent = text;
         return lbl;
     };
 
-    const createButton = (text: string) => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
+    const createButton = (text: string, ...classes: string[]) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
         btn.textContent = text;
+        btn.classList.add(...classes);
         return btn;
     };
 
     const createQuotaInfo = (id: string, cls: string) => {
-        const span = document.createElement('span');
+        const span = document.createElement("span");
         span.classList.add(cls);
-        span.textContent = 'SE API quota remaining: ';
+        span.textContent = "SE API quota remaining: ";
 
-        const quota = document.createElement('span');
+        const quota = document.createElement("span");
         quota.id = id;
         span.append(quota);
 
@@ -268,7 +308,7 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
 
         const base = `https://api.stackexchange.com/${version}`;
 
-        const [, site = 'stackoverflow'] =
+        const [, site = "stackoverflow"] =
             link.match(/((?:meta\.)?[\w-]+)\.com/i) || [];
 
         //TODO: match comments
@@ -280,14 +320,14 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
 
         let id!: string;
         for (const regex of exprs) {
-            const matcher = new RegExp(regex, 'i');
+            const matcher = new RegExp(regex, "i");
             const [, postId] = link.match(matcher) || [];
             if (!postId) continue;
             id = postId;
             break;
         }
 
-        const noResponse = ['', quotaLeft] as const;
+        const noResponse = ["", quotaLeft] as const;
 
         if (!id) return noResponse;
 
@@ -308,13 +348,13 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
     const fetchTitle = async (link: string) => {
         try {
             const res = await fetch(link);
-            if (res.status !== 200) return '';
+            if (res.status !== 200) return "";
 
             const content = await res.text();
 
             const parsedDoc = new DOMParser().parseFromString(
                 content,
-                'text/html'
+                "text/html"
             );
 
             //try to get OpenGraph title;
@@ -326,7 +366,7 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
             return meta ? meta.content : title;
         } catch (error) {
             console.debug(`failed to fetch link or parse: ${error}`);
-            return '';
+            return "";
         }
     };
 
@@ -347,9 +387,16 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
         if (!existing) return false;
 
         const selection = getChatInputSelection(anchorId);
-        const selectedText = selection?.toString() || '';
+
+        if (!selection || selection.isCollapsed) {
+            existing.value += link;
+            return true;
+        }
+
+        const selectedText = selection.toString();
 
         existing.value = existing.value.replace(selectedText, link);
+
         return true;
     };
 
@@ -369,13 +416,13 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
     ) => {
         modal.classList.add(closeCls);
         const submitter =
-            modal.querySelector<HTMLButtonElement>('[type=button]');
+            modal.querySelector<HTMLButtonElement>("[type=button]");
         if (submitter) refocusChatInput(submitter, inputId);
     };
 
     const openModal = (modal: HTMLElement, openCls: string) => {
         modal.classList.remove(openCls);
-        const [first] = [...modal.querySelectorAll<HTMLInputElement>('input')];
+        const [first] = [...modal.querySelectorAll<HTMLInputElement>("input")];
         first.focus();
         return modal;
     };
@@ -386,7 +433,7 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
         cls: string
     ) => {
         const [_link, title] = [
-            ...modal.querySelectorAll<HTMLInputElement>('input'),
+            ...modal.querySelectorAll<HTMLInputElement>("input"),
         ];
         title.value = selectedText;
 
@@ -402,13 +449,13 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
 
         const { chat } = ids;
 
-        const selectedText = selection?.toString() || '';
+        const selectedText = selection?.toString() || "";
 
         const existing = d.getElementById(ids.links.modal);
         if (existing)
             return openExistingModal(existing, selectedText, collapsed);
 
-        const modal = d.createElement('div');
+        const modal = d.createElement("div");
         modal.classList.add(
             classes.links.modal,
             classes.styles.primaryBckg,
@@ -417,24 +464,24 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
         modal.id = ids.links.modal;
 
         const closeIcon = createClearIcon();
-        closeIcon.addEventListener('click', () =>
+        closeIcon.addEventListener("click", () =>
             closeModal(modal, collapsed, chat.input)
         );
 
-        const form = d.createElement('form');
+        const form = d.createElement("form");
         form.id = ids.links.form;
 
-        const linkInput = d.createElement('input');
-        linkInput.type = 'text';
+        const linkInput = d.createElement("input");
+        linkInput.type = "text";
 
-        const titleInput = d.createElement('input');
-        titleInput.type = 'text';
+        const titleInput = d.createElement("input");
+        titleInput.type = "text";
         titleInput.value = selectedText;
 
         const quotaInfo = createQuotaInfo(ids.quotas.api, classes.quotas.api);
 
         let quota = 300;
-        linkInput.addEventListener('change', async () => {
+        linkInput.addEventListener("change", async () => {
             const { value } = linkInput;
 
             const isSElink = isStackExchangeLink(value);
@@ -456,11 +503,11 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
             titleInput.value ||= await fetchTitle(value);
         });
 
-        const linkLbl = createInputLabel(linkInput, 'Link');
-        const titleLbl = createInputLabel(titleInput, 'Title');
+        const linkLbl = createInputLabel(linkInput, "Link");
+        const titleLbl = createInputLabel(titleInput, "Title");
 
-        const submit = createButton('Add link');
-        submit.addEventListener('click', () => {
+        const submit = createButton("Add link", "btn-primary");
+        submit.addEventListener("click", () => {
             const createdLink = makeLinkMarkdown(
                 titleInput.value,
                 linkInput.value
@@ -469,12 +516,16 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
             closeModal(modal, collapsed, chat.input);
         });
 
+        const clear = createButton("Clear", "btn-secondary");
+        clear.addEventListener("click", () => form.reset());
+
         form.append(
             linkLbl,
             linkInput,
             titleLbl,
             titleInput,
             submit,
+            clear,
             quotaInfo
         );
         modal.append(closeIcon, form);
@@ -507,14 +558,14 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
 
     const shortcuts: Shortcut[] = [
         {
-            key: 'L',
+            key: "L",
             ctrl: true,
             shift: false,
             caseSensitive: false,
             action: openLinkModal,
         },
         {
-            key: 'Escape',
+            key: "Escape",
             ctrl: false,
             shift: false,
             caseSensitive: false,
@@ -522,7 +573,7 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
         },
     ];
 
-    d.addEventListener('keydown', (event) => {
+    d.addEventListener("keydown", (event) => {
         const { ctrlKey, metaKey, shiftKey, key } = event;
 
         const shortcut = shortcuts.find(

@@ -51,6 +51,11 @@ var __read = (this && this.__read) || function (o, n) {
     }
     return ar;
 };
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
+};
 var __values = (this && this.__values) || function(o) {
     var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
     if (m) return m.call(o);
@@ -62,95 +67,106 @@ var __values = (this && this.__values) || function(o) {
     };
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
-};
 (function (w, d) {
     var config = {
         ids: {
             chat: {
-                input: 'input',
-                anchor: 'bubble',
+                input: "input",
+                anchor: "bubble",
             },
             links: {
-                form: 'link-form',
-                modal: 'link-modal',
+                form: "link-form",
+                modal: "link-modal",
             },
             quotas: {
-                api: 'api-quotas',
+                api: "api-quotas",
             },
         },
         classes: {
+            buttons: {
+                primary: "btn-primary",
+                secondary: "btn-secondary",
+            },
             links: {
-                modal: 'link-modal',
+                modal: "link-modal",
             },
             styles: {
-                collapsed: 'collapsed',
-                primaryBckg: 'bckg-primary',
-                primaryColor: 'color-primary',
+                collapsed: "collapsed",
+                primaryBckg: "bckg-primary",
+                primaryColor: "color-primary",
             },
             quotas: {
-                api: 'api-quotas',
+                api: "api-quotas",
             },
         },
     };
+    var addButtonStyles = function (sheet, scope, primary, secondary) {
+        sheet.insertRule("\n        ." + scope + " ." + primary + ",\n        ." + scope + " ." + secondary + " {\n            height: 4vh;\n            min-width: 8vh;\n            outline: none;\n            border: none;\n            border-radius: 0.5vh 0.5vw;\n        }");
+        sheet.insertRule("\n        ." + scope + " ." + primary + " {\n            background-color: rgb(55, 138, 211);\n            color: white;\n        }");
+        sheet.insertRule("\n        ." + scope + " ." + secondary + " {\n            background-color: unset;\n            color: var(--white);\n        }");
+        sheet.insertRule("\n        ." + scope + " ." + primary + ":hover {\n            background-color: #3ca4ff;\n        }");
+        sheet.insertRule("\n        ." + scope + " ." + secondary + ":hover {\n            color: white;\n        }");
+    };
     var addScriptStyles = function (cnf) {
-        var style = d.createElement('style');
+        var style = d.createElement("style");
         d.head.append(style);
         var sheet = style.sheet;
         if (!sheet)
             return;
-        var _a = cnf.classes, links = _a.links, styles = _a.styles, quotas = _a.quotas;
+        var _a = cnf.classes, _b = _a.buttons, primary = _b.primary, secondary = _b.secondary, modal = _a.links.modal, styles = _a.styles, quotas = _a.quotas;
         sheet.insertRule("\n        :root {\n            --white: #c4c8cc;\n            --black: #2d2d2d;\n            --button-primary: #378ad3;\n        }");
         sheet.insertRule("\n        ." + styles.primaryBckg + " {\n            background-color: var(--black) !important;\n        }");
         sheet.insertRule("\n        ." + styles.primaryColor + " {\n            color: var(--white) !important;\n        }");
-        sheet.insertRule("\n        ." + links.modal + " .iconClear {\n            position: absolute;\n            top: 0;\n            right: 0;\n            margin: 1vh;\n            fill: var(--white);\n        }");
-        sheet.insertRule("\n        ." + links.modal + " {\n            position: fixed;\n            top: calc(100% / 3);\n            left: calc(100% / 3);\n            display: flex;\n            flex-direction: column;\n            align-items: center;\n            justify-content: center;\n            border-radius: 1vh;\n            z-index: 9999;\n            max-width: 50vw;\n            max-height: 25vh;\n            overflow: hidden;\n\n            transition: max-width 0.1s linear, max-height 0.1s linear;\n        }");
+        sheet.insertRule("\n        ." + modal + " .iconClear {\n            position: absolute;\n            top: 0;\n            right: 0;\n            margin: 1vh;\n            fill: var(--white);\n        }");
+        sheet.insertRule("\n        ." + modal + " {\n            position: fixed;\n            top: calc(100% / 3);\n            left: calc(100% / 3);\n            display: flex;\n            flex-direction: column;\n            align-items: center;\n            justify-content: center;\n            border-radius: 1vh;\n            z-index: 9999;\n            max-width: 50vw;\n            max-height: 25vh;\n            overflow: hidden;\n\n            transition: max-width 0.1s linear, max-height 0.1s linear;\n        }");
         sheet.insertRule("\n        ." + styles.collapsed + " {\n            max-width: 0px !important;\n            max-height: 0px !important;\n        }");
-        sheet.insertRule("\n        ." + links.modal + " form {\n            padding: 1vh 1vw;\n        }");
-        sheet.insertRule("\n        ." + links.modal + " input {\n            box-sizing: border-box;\n            border-radius: 0.5vh;\n            padding: 1vh 1vw;\n            width: 100%;\n            outline: none;\n            background: none;\n            color: var(--white);\n        }");
-        sheet.insertRule("\n        ." + links.modal + " label {\n            display: inline-block;\n            margin: 0 0 1vh 0.25vw;\n            color: var(--white);\n            font-size: 0.9rem;\n        }");
-        sheet.insertRule("\n        ." + links.modal + " button {\n            height: 4vh;\n            min-width: 8vh;\n            border-radius: 0.5vh 0.5vw;\n            border: none;\n            background-color: rgb(55, 138, 211);\n            color: white;\n        }");
-        sheet.insertRule("\n        ." + links.modal + " button:hover {\n            background-color: #3ca4ff;\n        }");
-        sheet.insertRule("\n        ." + links.modal + " ." + quotas.api + " {\n            cursor: initial;\n            margin-left: 0.5vw;\n            color: var(--black);\n            transition: color 0.5s linear 0s;\n        }");
-        sheet.insertRule("\n        ." + links.modal + " input {\n            margin-bottom: 1vh;\n        }");
+        sheet.insertRule("\n        ." + modal + " form {\n            padding: 1vh 1vw;\n        }");
+        sheet.insertRule("\n        ." + modal + " input {\n            box-sizing: border-box;\n            border-radius: 0.5vh;\n            padding: 1vh 1vw;\n            width: 100%;\n            outline: none;\n            background: none;\n            color: var(--white);\n        }");
+        sheet.insertRule("\n        ." + modal + " label {\n            display: inline-block;\n            margin: 0 0 1vh 0.25vw;\n            color: var(--white);\n            font-size: 0.9rem;\n        }");
+        addButtonStyles(sheet, modal, primary, secondary);
+        sheet.insertRule("\n        ." + modal + " ." + quotas.api + " {\n            cursor: initial;\n            margin-left: 0.5vw;\n            color: var(--black);\n            transition: color 0.5s linear 0s;\n        }");
+        sheet.insertRule("\n        ." + modal + " input {\n            margin-bottom: 1vh;\n        }");
     };
     var createIcon = function (name, pathConfig) {
-        var SVG_NS = 'http://www.w3.org/2000/svg';
-        var svg = document.createElementNS(SVG_NS, 'svg');
-        svg.classList.add('svg-icon', name);
-        svg.setAttribute('width', '18');
-        svg.setAttribute('height', '18');
-        svg.setAttribute('viewBox', '0 0 18 18');
-        svg.setAttribute('aria-hidden', 'true');
-        var path = document.createElementNS(SVG_NS, 'path');
-        path.setAttribute('d', pathConfig);
+        var SVG_NS = "http://www.w3.org/2000/svg";
+        var svg = document.createElementNS(SVG_NS, "svg");
+        svg.classList.add("svg-icon", name);
+        svg.setAttribute("width", "18");
+        svg.setAttribute("height", "18");
+        svg.setAttribute("viewBox", "0 0 18 18");
+        svg.setAttribute("aria-hidden", "true");
+        var path = document.createElementNS(SVG_NS, "path");
+        path.setAttribute("d", pathConfig);
         svg.append(path);
         return svg;
     };
     var createClearIcon = function () {
-        return createIcon('iconClear', 'M15 4.41 13.59 3 9 7.59 4.41 3 3 4.41 7.59 9 3 13.59 4.41 15 9 10.41 13.59 15 15 13.59 10.41 9 15 4.41z');
+        return createIcon("iconClear", "M15 4.41 13.59 3 9 7.59 4.41 3 3 4.41 7.59 9 3 13.59 4.41 15 9 10.41 13.59 15 15 13.59 10.41 9 15 4.41z");
     };
     var createInputLabel = function (_a, text) {
         var id = _a.id;
-        var lbl = document.createElement('label');
+        var lbl = document.createElement("label");
         lbl.htmlFor = id;
         lbl.textContent = text;
         return lbl;
     };
     var createButton = function (text) {
-        var btn = document.createElement('button');
-        btn.type = 'button';
+        var _a;
+        var classes = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            classes[_i - 1] = arguments[_i];
+        }
+        var btn = document.createElement("button");
+        btn.type = "button";
         btn.textContent = text;
+        (_a = btn.classList).add.apply(_a, __spreadArray([], __read(classes)));
         return btn;
     };
     var createQuotaInfo = function (id, cls) {
-        var span = document.createElement('span');
+        var span = document.createElement("span");
         span.classList.add(cls);
-        span.textContent = 'SE API quota remaining: ';
-        var quota = document.createElement('span');
+        span.textContent = "SE API quota remaining: ";
+        var quota = document.createElement("span");
         quota.id = id;
         span.append(quota);
         return span;
@@ -180,7 +196,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
                 case 0:
                     version = 2.2;
                     base = "https://api.stackexchange.com/" + version;
-                    _a = __read(link.match(/((?:meta\.)?[\w-]+)\.com/i) || [], 2), _b = _a[1], site = _b === void 0 ? 'stackoverflow' : _b;
+                    _a = __read(link.match(/((?:meta\.)?[\w-]+)\.com/i) || [], 2), _b = _a[1], site = _b === void 0 ? "stackoverflow" : _b;
                     exprs = [
                         "https?:\\/\\/" + site + "\\.com\\/questions\\/\\d+\\/.+?\\/(\\d+)",
                         "https?:\\/\\/" + site + "\\.com\\/questions\\/(\\d+)\\/.+?(?:\\/(\\d+)|$)",
@@ -189,7 +205,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
                     try {
                         for (exprs_1 = __values(exprs), exprs_1_1 = exprs_1.next(); !exprs_1_1.done; exprs_1_1 = exprs_1.next()) {
                             regex = exprs_1_1.value;
-                            matcher = new RegExp(regex, 'i');
+                            matcher = new RegExp(regex, "i");
                             _c = __read(link.match(matcher) || [], 2), postId = _c[1];
                             if (!postId)
                                 continue;
@@ -204,7 +220,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
                         }
                         finally { if (e_1) throw e_1.error; }
                     }
-                    noResponse = ['', quotaLeft];
+                    noResponse = ["", quotaLeft];
                     if (!id)
                         return [2, noResponse];
                     return [4, fetch(base + "/posts/" + id + "?site=" + site + "&filter=Bqe1ika.a")];
@@ -232,18 +248,18 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
                 case 1:
                     res = _a.sent();
                     if (res.status !== 200)
-                        return [2, ''];
+                        return [2, ""];
                     return [4, res.text()];
                 case 2:
                     content = _a.sent();
-                    parsedDoc = new DOMParser().parseFromString(content, 'text/html');
+                    parsedDoc = new DOMParser().parseFromString(content, "text/html");
                     meta = parsedDoc.querySelector("[property='og:title']");
                     title = parsedDoc.title;
                     return [2, meta ? meta.content : title];
                 case 3:
                     error_1 = _a.sent();
                     console.debug("failed to fetch link or parse: " + error_1);
-                    return [2, ''];
+                    return [2, ""];
                 case 4: return [2];
             }
         });
@@ -262,7 +278,11 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         if (!existing)
             return false;
         var selection = getChatInputSelection(anchorId);
-        var selectedText = (selection === null || selection === void 0 ? void 0 : selection.toString()) || '';
+        if (!selection || selection.isCollapsed) {
+            existing.value += link;
+            return true;
+        }
+        var selectedText = selection.toString();
         existing.value = existing.value.replace(selectedText, link);
         return true;
     };
@@ -274,18 +294,18 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
     };
     var closeModal = function (modal, closeCls, inputId) {
         modal.classList.add(closeCls);
-        var submitter = modal.querySelector('[type=button]');
+        var submitter = modal.querySelector("[type=button]");
         if (submitter)
             refocusChatInput(submitter, inputId);
     };
     var openModal = function (modal, openCls) {
         modal.classList.remove(openCls);
-        var _a = __read(__spreadArray([], __read(modal.querySelectorAll('input'))), 1), first = _a[0];
+        var _a = __read(__spreadArray([], __read(modal.querySelectorAll("input"))), 1), first = _a[0];
         first.focus();
         return modal;
     };
     var openExistingModal = function (modal, selectedText, cls) {
-        var _a = __read(__spreadArray([], __read(modal.querySelectorAll('input'))), 2), _link = _a[0], title = _a[1];
+        var _a = __read(__spreadArray([], __read(modal.querySelectorAll("input"))), 2), _link = _a[0], title = _a[1];
         title.value = selectedText;
         return openModal(modal, cls);
     };
@@ -294,27 +314,27 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         var selection = getChatInputSelection(ids.chat.anchor);
         var collapsed = classes.styles.collapsed;
         var chat = ids.chat;
-        var selectedText = (selection === null || selection === void 0 ? void 0 : selection.toString()) || '';
+        var selectedText = (selection === null || selection === void 0 ? void 0 : selection.toString()) || "";
         var existing = d.getElementById(ids.links.modal);
         if (existing)
             return openExistingModal(existing, selectedText, collapsed);
-        var modal = d.createElement('div');
+        var modal = d.createElement("div");
         modal.classList.add(classes.links.modal, classes.styles.primaryBckg, collapsed);
         modal.id = ids.links.modal;
         var closeIcon = createClearIcon();
-        closeIcon.addEventListener('click', function () {
+        closeIcon.addEventListener("click", function () {
             return closeModal(modal, collapsed, chat.input);
         });
-        var form = d.createElement('form');
+        var form = d.createElement("form");
         form.id = ids.links.form;
-        var linkInput = d.createElement('input');
-        linkInput.type = 'text';
-        var titleInput = d.createElement('input');
-        titleInput.type = 'text';
+        var linkInput = d.createElement("input");
+        linkInput.type = "text";
+        var titleInput = d.createElement("input");
+        titleInput.type = "text";
         titleInput.value = selectedText;
         var quotaInfo = createQuotaInfo(ids.quotas.api, classes.quotas.api);
         var quota = 300;
-        linkInput.addEventListener('change', function () { return __awaiter(void 0, void 0, void 0, function () {
+        linkInput.addEventListener("change", function () { return __awaiter(void 0, void 0, void 0, function () {
             var value, isSElink, _a, title, quotaLeft, _b, _c;
             return __generator(this, function (_d) {
                 switch (_d.label) {
@@ -342,15 +362,17 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
                 }
             });
         }); });
-        var linkLbl = createInputLabel(linkInput, 'Link');
-        var titleLbl = createInputLabel(titleInput, 'Title');
-        var submit = createButton('Add link');
-        submit.addEventListener('click', function () {
+        var linkLbl = createInputLabel(linkInput, "Link");
+        var titleLbl = createInputLabel(titleInput, "Title");
+        var submit = createButton("Add link", "btn-primary");
+        submit.addEventListener("click", function () {
             var createdLink = makeLinkMarkdown(titleInput.value, linkInput.value);
             insertLinkToMessage(chat.anchor, chat.input, createdLink);
             closeModal(modal, collapsed, chat.input);
         });
-        form.append(linkLbl, linkInput, titleLbl, titleInput, submit, quotaInfo);
+        var clear = createButton("Clear", "btn-secondary");
+        clear.addEventListener("click", function () { return form.reset(); });
+        form.append(linkLbl, linkInput, titleLbl, titleInput, submit, clear, quotaInfo);
         modal.append(closeIcon, form);
         var body = d.body;
         body.append(modal);
@@ -376,21 +398,21 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
     addScriptStyles(config);
     var shortcuts = [
         {
-            key: 'L',
+            key: "L",
             ctrl: true,
             shift: false,
             caseSensitive: false,
             action: openLinkModal,
         },
         {
-            key: 'Escape',
+            key: "Escape",
             ctrl: false,
             shift: false,
             caseSensitive: false,
             action: closeLinkModal,
         },
     ];
-    d.addEventListener('keydown', function (event) {
+    d.addEventListener("keydown", function (event) {
         var ctrlKey = event.ctrlKey, metaKey = event.metaKey, shiftKey = event.shiftKey, key = event.key;
         var shortcut = shortcuts.find(function (shortcut) {
             return sameModifiers(shortcut, ctrlKey, metaKey, shiftKey) &&

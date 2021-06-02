@@ -6,5 +6,5 @@
 // @name            chat-overcharge
 // @source          git+https://github.com/userscripters/template.git
 // @supportURL      https://github.com/userscripters/template/issues
-// @version         1.4.2
+// @version         1.4.3
 // ==/UserScript==

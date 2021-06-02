@@ -485,6 +485,12 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
         return openModal(modal, collapsed);
     };
 
+    const closeLinkModal = ({ ids, classes }: Config) => {
+        const modal = d.getElementById(ids.links.modal);
+        if (modal) closeModal(modal, classes.styles.collapsed, ids.chat.input);
+        return modal;
+    };
+
     const sameModifiers = (
         { ctrl, shift }: Shortcut,
         ctrlKey: boolean,
@@ -506,6 +512,13 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
             shift: false,
             caseSensitive: false,
             action: openLinkModal,
+        },
+        {
+            key: 'Escape',
+            ctrl: false,
+            shift: false,
+            caseSensitive: false,
+            action: closeLinkModal,
         },
     ];
 

@@ -356,6 +356,13 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
         body.append(modal);
         return openModal(modal, collapsed);
     };
+    var closeLinkModal = function (_a) {
+        var ids = _a.ids, classes = _a.classes;
+        var modal = d.getElementById(ids.links.modal);
+        if (modal)
+            closeModal(modal, classes.styles.collapsed, ids.chat.input);
+        return modal;
+    };
     var sameModifiers = function (_a, ctrlKey, metaKey, shiftKey) {
         var ctrl = _a.ctrl, shift = _a.shift;
         return (ctrlKey === ctrl || metaKey === ctrl) && shiftKey === shift;
@@ -374,6 +381,13 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
             shift: false,
             caseSensitive: false,
             action: openLinkModal,
+        },
+        {
+            key: 'Escape',
+            ctrl: false,
+            shift: false,
+            caseSensitive: false,
+            action: closeLinkModal,
         },
     ];
     d.addEventListener('keydown', function (event) {

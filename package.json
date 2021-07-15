@@ -42,6 +42,6 @@
     "mocha": "^9.0.2",
     "ts-node": "^10.0.0",
     "typescript": "^4.3.5",
-    "uglify-js": "^3.13.7"
+    "uglify-js": "^3.13.10"
   }
 }

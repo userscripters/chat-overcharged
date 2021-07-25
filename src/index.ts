@@ -55,7 +55,7 @@ type PostInfo = {
 
 type ApiRes = { items: PostInfo[]; quota_remaining: number };
 
-((w, d) => {
+((_w, d) => {
     const config: Config = {
         ids: {
             chat: {
@@ -370,33 +370,19 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
         }
     };
 
-    const getChatInputSelection = (anchorId: string) => {
-        const selection = w.getSelection();
-        if (!selection) return;
-        const { anchorNode } = selection;
-        if (!anchorNode || (<HTMLElement>anchorNode).id !== anchorId) return;
-        return selection;
-    };
+    const insertLinkToMessage = (inputId: string, link: string) => {
+        const chatInput = d.getElementById<HTMLTextAreaElement>(inputId);
+        if (!chatInput) return false;
 
-    const insertLinkToMessage = (
-        anchorId: string,
-        inputId: string,
-        link: string
-    ) => {
-        const existing = d.getElementById<HTMLTextAreaElement>(inputId);
-        if (!existing) return false;
+        const { selectionStart, selectionEnd, value } = chatInput;
 
-        const selection = getChatInputSelection(anchorId);
-
-        if (!selection || selection.isCollapsed) {
-            existing.value += link;
+        if (selectionStart === selectionEnd) {
+            chatInput.value += link;
             return true;
         }
 
-        const selectedText = selection.toString();
-
-        existing.value = existing.value.replace(selectedText, link);
-
+        const old = value.slice(selectionStart, selectionEnd);
+        chatInput.value = value.replace(old, link);
         return true;
     };
 
@@ -441,15 +427,13 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
     };
 
     const openLinkModal = ({ ids, classes }: Config) => {
-        const selection = getChatInputSelection(ids.chat.anchor);
+        const { collapsed } = classes.styles;
 
-        const {
-            styles: { collapsed },
-        } = classes;
+        const input = d.getElementById<HTMLTextAreaElement>(ids.chat.input);
+        if (!input) return null;
 
-        const { chat } = ids;
-
-        const selectedText = selection?.toString() || "";
+        const { selectionStart, selectionEnd, value } = input;
+        const selectedText = value.slice(selectionStart, selectionEnd);
 
         const existing = d.getElementById(ids.links.modal);
         if (existing)
@@ -465,7 +449,7 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
 
         const closeIcon = createClearIcon();
         closeIcon.addEventListener("click", () =>
-            closeModal(modal, collapsed, chat.input)
+            closeModal(modal, collapsed, ids.chat.input)
         );
 
         const form = d.createElement("form");
@@ -512,8 +496,8 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
                 titleInput.value,
                 linkInput.value
             );
-            insertLinkToMessage(chat.anchor, chat.input, createdLink);
-            closeModal(modal, collapsed, chat.input);
+            insertLinkToMessage(ids.chat.input, createdLink);
+            closeModal(modal, collapsed, ids.chat.input);
         });
 
         const clear = createButton("Clear", "btn-secondary");

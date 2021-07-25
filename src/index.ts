@@ -118,12 +118,14 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
         }`);
 
         sheet.insertRule(`
-        .${scope} .${primary}:hover {
+        .${scope} .${primary}:hover,
+        .${scope} .${primary}:focus {
             background-color: #3ca4ff;
         }`);
 
         sheet.insertRule(`
-        .${scope} .${secondary}:hover {
+        .${scope} .${secondary}:hover,
+        .${scope} .${secondary}:focus {
             color: white;
         }`);
     };

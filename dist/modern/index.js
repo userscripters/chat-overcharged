@@ -75,11 +75,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             color: var(--white);
         }`);
         sheet.insertRule(`
-        .${scope} .${primary}:hover {
+        .${scope} .${primary}:hover,
+        .${scope} .${primary}:focus {
             background-color: #3ca4ff;
         }`);
         sheet.insertRule(`
-        .${scope} .${secondary}:hover {
+        .${scope} .${secondary}:hover,
+        .${scope} .${secondary}:focus {
             color: white;
         }`);
     };

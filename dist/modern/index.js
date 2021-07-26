@@ -21,7 +21,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-((_w, d) => {
+((w, d) => {
     const config = {
         ids: {
             chat: {
@@ -168,6 +168,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         sheet.insertRule(`
         .${modal} input {
             margin-bottom: 1vh;
+        }`);
+        sheet.insertRule(`
+        .${modal}[draggable=true] {
+            cursor: move;
         }`);
     };
     const createIcon = (name, pathConfig) => {
@@ -316,6 +320,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         const modal = d.createElement("div");
         modal.classList.add(classes.links.modal, classes.styles.primaryBckg, collapsed);
         modal.id = ids.links.modal;
+        modal.draggable = true;
         const closeIcon = createClearIcon();
         closeIcon.addEventListener("click", () => closeModal(modal, collapsed, ids.chat.input));
         const form = d.createElement("form");
@@ -391,4 +396,32 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         const { action } = shortcut;
         action(config, shortcut);
     });
+    const modalId = config.ids.links.modal;
+    d.addEventListener("dragstart", ({ dataTransfer }) => {
+        const dummy = d.createElement("img");
+        dummy.src = "data:image/png;base64,AAAAAA==";
+        dataTransfer === null || dataTransfer === void 0 ? void 0 : dataTransfer.setDragImage(dummy, 0, 0);
+    });
+    let previousX = 0;
+    let previousY = 0;
+    d.addEventListener("drag", ({ dataTransfer, target, clientX, clientY }) => {
+        if (target.id !== modalId || !dataTransfer)
+            return;
+        const { style } = target;
+        previousX || (previousX = clientX);
+        previousY || (previousY = clientY);
+        let { style: { top, left }, } = target;
+        if (!top && !left) {
+            const computed = w.getComputedStyle(target);
+            top = computed.top;
+            left = computed.left;
+        }
+        const moveX = clientX - previousX;
+        const moveY = clientY - previousY;
+        style.left = `${parseInt(left) + moveX}px`;
+        style.top = `${parseInt(top) + moveY}px`;
+        previousX = clientX;
+        previousY = clientY;
+    });
+    d.addEventListener("dragover", (e) => e.preventDefault());
 })(window, document);

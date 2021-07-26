@@ -80,7 +80,7 @@ var __values = (this && this.__values) || function(o) {
     };
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
-(function (_w, d) {
+(function (w, d) {
     var config = {
         ids: {
             chat: {
@@ -139,6 +139,7 @@ var __values = (this && this.__values) || function(o) {
         addButtonStyles(sheet, modal, primary, secondary);
         sheet.insertRule("\n        ." + modal + " ." + quotas.api + " {\n            cursor: initial;\n            margin-left: 0.5vw;\n            color: var(--black);\n            transition: color 0.5s linear 0s;\n        }");
         sheet.insertRule("\n        ." + modal + " input {\n            margin-bottom: 1vh;\n        }");
+        sheet.insertRule("\n        ." + modal + "[draggable=true] {\n            cursor: move;\n        }");
     };
     var createIcon = function (name, pathConfig) {
         var SVG_NS = "http://www.w3.org/2000/svg";
@@ -327,6 +328,7 @@ var __values = (this && this.__values) || function(o) {
         var modal = d.createElement("div");
         modal.classList.add(classes.links.modal, classes.styles.primaryBckg, collapsed);
         modal.id = ids.links.modal;
+        modal.draggable = true;
         var closeIcon = createClearIcon();
         closeIcon.addEventListener("click", function () {
             return closeModal(modal, collapsed, ids.chat.input);
@@ -430,4 +432,34 @@ var __values = (this && this.__values) || function(o) {
         var action = shortcut.action;
         action(config, shortcut);
     });
+    var modalId = config.ids.links.modal;
+    d.addEventListener("dragstart", function (_a) {
+        var dataTransfer = _a.dataTransfer;
+        var dummy = d.createElement("img");
+        dummy.src = "data:image/png;base64,AAAAAA==";
+        dataTransfer === null || dataTransfer === void 0 ? void 0 : dataTransfer.setDragImage(dummy, 0, 0);
+    });
+    var previousX = 0;
+    var previousY = 0;
+    d.addEventListener("drag", function (_a) {
+        var dataTransfer = _a.dataTransfer, target = _a.target, clientX = _a.clientX, clientY = _a.clientY;
+        if (target.id !== modalId || !dataTransfer)
+            return;
+        var style = target.style;
+        previousX || (previousX = clientX);
+        previousY || (previousY = clientY);
+        var _b = target.style, top = _b.top, left = _b.left;
+        if (!top && !left) {
+            var computed = w.getComputedStyle(target);
+            top = computed.top;
+            left = computed.left;
+        }
+        var moveX = clientX - previousX;
+        var moveY = clientY - previousY;
+        style.left = parseInt(left) + moveX + "px";
+        style.top = parseInt(top) + moveY + "px";
+        previousX = clientX;
+        previousY = clientY;
+    });
+    d.addEventListener("dragover", function (e) { return e.preventDefault(); });
 })(window, document);

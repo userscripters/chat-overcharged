@@ -55,7 +55,7 @@ type PostInfo = {
 
 type ApiRes = { items: PostInfo[]; quota_remaining: number };
 
-((_w, d) => {
+((w, d) => {
     const config: Config = {
         ids: {
             chat: {
@@ -233,6 +233,11 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
         sheet.insertRule(`
         .${modal} input {
             margin-bottom: 1vh;
+        }`);
+
+        sheet.insertRule(`
+        .${modal}[draggable=true] {
+            cursor: move;
         }`);
     };
 
@@ -448,6 +453,7 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
             collapsed
         );
         modal.id = ids.links.modal;
+        modal.draggable = true;
 
         const closeIcon = createClearIcon();
         closeIcon.addEventListener("click", () =>
@@ -575,4 +581,45 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
         const { action } = shortcut;
         action(config, shortcut);
     });
+
+    const modalId = config.ids.links.modal;
+
+    d.addEventListener("dragstart", ({ dataTransfer }) => {
+        const dummy = d.createElement("img");
+        dummy.src = "data:image/png;base64,AAAAAA==";
+        dataTransfer?.setDragImage(dummy, 0, 0);
+    });
+
+    let previousX = 0;
+    let previousY = 0;
+    d.addEventListener("drag", ({ dataTransfer, target, clientX, clientY }) => {
+        if ((target as HTMLElement).id !== modalId || !dataTransfer) return;
+
+        const { style } = target as HTMLElement;
+
+        previousX ||= clientX;
+        previousY ||= clientY;
+
+        let {
+            style: { top, left },
+        } = target as HTMLElement;
+
+        //get computed styles the first time
+        if (!top && !left) {
+            const computed = w.getComputedStyle(target as HTMLElement);
+            top = computed.top;
+            left = computed.left;
+        }
+
+        const moveX = clientX - previousX;
+        const moveY = clientY - previousY;
+
+        style.left = `${parseInt(left) + moveX}px`;
+        style.top = `${parseInt(top) + moveY}px`;
+
+        previousX = clientX;
+        previousY = clientY;
+    });
+
+    d.addEventListener("dragover", (e) => e.preventDefault());
 })(window, document);

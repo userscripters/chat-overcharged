@@ -1,5 +1,5 @@
 {
-  "name": "chat-overcharge",
+  "name": "@userscripters/chat-overcharged",
   "version": "1.5.1",
   "description": "Chat experience improvements",
   "scripts": {
@@ -17,19 +17,22 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/userscripters/template.git"
+    "url": "git+https://github.com/userscripters/chat-overcharged.git"
   },
   "keywords": [
     "chat",
     "stackoverflow",
     "userscript"
   ],
-  "author": "Oleg Valter",
+  "author": {
+    "name": "Oleg Valter",
+    "email": "oleg.a.valter@gmail.com"
+  },
   "license": "GPL-3.0-or-later",
   "bugs": {
-    "url": "https://github.com/userscripters/template/issues"
+    "url": "https://github.com/userscripters/chat-overcharged/issues"
   },
-  "homepage": "https://github.com/userscripters/template#readme",
+  "homepage": "https://github.com/userscripters/chat-overcharged#readme",
   "devDependencies": {
     "@types/chai": "^4.2.21",
     "@types/mocha": "^8.2.3",

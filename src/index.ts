@@ -338,10 +338,14 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
 
         if (!id) return noResponse;
 
-        const res = await fetch(
-            `${base}/posts/${id}?site=${site}&filter=Bqe1ika.a`
-        );
+        const url = new URL(`${base}/posts/${id}`);
+        url.search = new URLSearchParams({
+            site,
+            key: "nWopg6u2CiSfx8SXs3dyVg((",
+            filter: "Bqe1ika.a",
+        }).toString();
 
+        const res = await fetch(url.toString());
         if (!res.ok) return noResponse;
 
         const { items, quota_remaining } = <ApiRes> await res.json();

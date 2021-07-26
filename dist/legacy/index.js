@@ -203,7 +203,7 @@ var __values = (this && this.__values) || function(o) {
         return /https?:\/\/(www\.)?(meta\.)?stack(?:overflow|exchange)\.com/.test(link);
     };
     var fetchTitleFromAPI = function (link, quotaLeft) { return __awaiter(void 0, void 0, void 0, function () {
-        var version, base, _a, _b, site, exprs, id, exprs_1, exprs_1_1, regex, matcher, _c, postId, noResponse, res, _d, items, quota_remaining, _e, title;
+        var version, base, _a, _b, site, exprs, id, exprs_1, exprs_1_1, regex, matcher, _c, postId, noResponse, url, res, _d, items, quota_remaining, _e, title;
         var e_1, _f;
         return __generator(this, function (_g) {
             switch (_g.label) {
@@ -237,7 +237,13 @@ var __values = (this && this.__values) || function(o) {
                     noResponse = ["", quotaLeft];
                     if (!id)
                         return [2, noResponse];
-                    return [4, fetch(base + "/posts/" + id + "?site=" + site + "&filter=Bqe1ika.a")];
+                    url = new URL(base + "/posts/" + id);
+                    url.search = new URLSearchParams({
+                        site: site,
+                        key: "nWopg6u2CiSfx8SXs3dyVg((",
+                        filter: "Bqe1ika.a",
+                    }).toString();
+                    return [4, fetch(url.toString())];
                 case 1:
                     res = _g.sent();
                     if (!res.ok)

@@ -103,6 +103,7 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
             outline: none;
             border: none;
             border-radius: 0.5vh 0.5vw;
+            cursor: pointer;
         }`);
 
         sheet.insertRule(`
@@ -170,6 +171,7 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
             right: 0;
             margin: 1vh;
             fill: var(--white);
+            cursor: pointer;
         }`);
 
         sheet.insertRule(`

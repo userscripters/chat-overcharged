@@ -64,6 +64,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             outline: none;
             border: none;
             border-radius: 0.5vh 0.5vw;
+            cursor: pointer;
         }`);
         sheet.insertRule(`
         .${scope} .${primary} {
@@ -114,6 +115,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             right: 0;
             margin: 1vh;
             fill: var(--white);
+            cursor: pointer;
         }`);
         sheet.insertRule(`
         .${modal} {

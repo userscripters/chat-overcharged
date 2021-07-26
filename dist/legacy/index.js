@@ -115,7 +115,7 @@ var __values = (this && this.__values) || function(o) {
         },
     };
     var addButtonStyles = function (sheet, scope, primary, secondary) {
-        sheet.insertRule("\n        ." + scope + " ." + primary + ",\n        ." + scope + " ." + secondary + " {\n            height: 4vh;\n            min-width: 8vh;\n            outline: none;\n            border: none;\n            border-radius: 0.5vh 0.5vw;\n        }");
+        sheet.insertRule("\n        ." + scope + " ." + primary + ",\n        ." + scope + " ." + secondary + " {\n            height: 4vh;\n            min-width: 8vh;\n            outline: none;\n            border: none;\n            border-radius: 0.5vh 0.5vw;\n            cursor: pointer;\n        }");
         sheet.insertRule("\n        ." + scope + " ." + primary + " {\n            background-color: rgb(55, 138, 211);\n            color: white;\n        }");
         sheet.insertRule("\n        ." + scope + " ." + secondary + " {\n            background-color: unset;\n            color: var(--white);\n        }");
         sheet.insertRule("\n        ." + scope + " ." + primary + ":hover,\n        ." + scope + " ." + primary + ":focus {\n            background-color: #3ca4ff;\n        }");
@@ -131,7 +131,7 @@ var __values = (this && this.__values) || function(o) {
         sheet.insertRule("\n        :root {\n            --white: #c4c8cc;\n            --black: #2d2d2d;\n            --button-primary: #378ad3;\n        }");
         sheet.insertRule("\n        ." + styles.primaryBckg + " {\n            background-color: var(--black) !important;\n        }");
         sheet.insertRule("\n        ." + styles.primaryColor + " {\n            color: var(--white) !important;\n        }");
-        sheet.insertRule("\n        ." + modal + " .iconClear {\n            position: absolute;\n            top: 0;\n            right: 0;\n            margin: 1vh;\n            fill: var(--white);\n        }");
+        sheet.insertRule("\n        ." + modal + " .iconClear {\n            position: absolute;\n            top: 0;\n            right: 0;\n            margin: 1vh;\n            fill: var(--white);\n            cursor: pointer;\n        }");
         sheet.insertRule("\n        ." + modal + " {\n            position: fixed;\n            top: calc(100% / 3);\n            left: calc(100% / 3);\n            display: flex;\n            flex-direction: column;\n            align-items: center;\n            justify-content: center;\n            border-radius: 1vh;\n            z-index: 9999;\n            max-width: 50vw;\n            max-height: 25vh;\n            overflow: hidden;\n\n            transition: max-width 0.1s linear, max-height 0.1s linear;\n        }");
         sheet.insertRule("\n        ." + styles.collapsed + " {\n            max-width: 0px !important;\n            max-height: 0px !important;\n        }");
         sheet.insertRule("\n        ." + modal + " form {\n            padding: 1vh 1vw;\n        }");

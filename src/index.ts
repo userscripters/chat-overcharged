@@ -53,7 +53,20 @@ type PostInfo = {
     title: string;
 };
 
-type ApiRes = { items: PostInfo[]; quota_remaining: number };
+type CommentInfo = {
+    body_markdown: string;
+    content_license: string;
+    creation_date: number;
+    owner: {
+        display_name: string;
+    };
+};
+
+type ApiRes<T> = { items: T[]; quota_remaining: number };
+
+type ApiTitleInfo = [title: string, quota: number];
+
+type ApiActions = [boolean, () => Promise<ApiTitleInfo>][];
 
 ((w, d) => {
     const config: Config = {
@@ -306,15 +319,42 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
             link
         );
 
-    const fetchTitleFromAPI = async (link: string, quotaLeft: number) => {
+    const getItemsFromAPI = async <T>(
+        site: string,
+        path: string,
+        filter: string
+    ): Promise<[items: T[], quota?: number]> => {
         const version = 2.2;
-
         const base = `https://api.stackexchange.com/${version}`;
+        const key = "nWopg6u2CiSfx8SXs3dyVg((";
 
+        const url = new URL(`${base}${path}`);
+        url.search = new URLSearchParams({ key, site, filter }).toString();
+
+        const res = await fetch(url.toString());
+        if (!res.ok) return [[]];
+
+        const { items = [], quota_remaining } = (await res.json()) as ApiRes<T>;
+        return [items, quota_remaining];
+    };
+
+    const makeCommentTitleFromAPI = (comment?: CommentInfo) => {
+        if (!comment) return "";
+
+        const {
+            body_markdown,
+            creation_date,
+            owner: { display_name },
+        } = comment;
+
+        const parsedDate = new Date(creation_date * 1e3).toLocaleDateString();
+        return `${body_markdown} by ${display_name} on ${parsedDate}`;
+    };
+
+    const fetchTitleFromAPI = async (link: string, quotaLeft: number) => {
         const [, site = "stackoverflow"] =
             link.match(/((?:meta\.)?[\w-]+)\.com/i) || [];
 
-        //TODO: match comments
         const exprs = [
             `https?:\\/\\/${site}\\.com\\/questions\\/\\d+\\/.+?\\/(\\d+)`, //answers
             `https?:\\/\\/${site}\\.com\\/questions\\/(\\d+)\\/.+?(?:\\/(\\d+)|$)`, //questions
@@ -330,26 +370,46 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
             break;
         }
 
-        const noResponse = ["", quotaLeft] as const;
+        const noResponse: ApiTitleInfo = ["", quotaLeft];
 
-        if (!id) return noResponse;
+        const [, commentId] =
+            link.match(
+                new RegExp(`https?:\\/\\/${site}\\.com.+?#comment(\\d+)`, "i")
+            ) || [];
 
-        const url = new URL(`${base}/posts/${id}`);
-        url.search = new URLSearchParams({
-            site,
-            key: "nWopg6u2CiSfx8SXs3dyVg((",
-            filter: "Bqe1ika.a",
-        }).toString();
+        const actions: ApiActions = [
+            [
+                !!commentId,
+                async () => {
+                    const [[comment], quota] =
+                        await getItemsFromAPI<CommentInfo>(
+                            site,
+                            `/comments/${commentId}`,
+                            "7W_5HvYg2"
+                        );
 
-        const res = await fetch(url.toString());
-        if (!res.ok) return noResponse;
+                    return [
+                        makeCommentTitleFromAPI(comment),
+                        quota || quotaLeft,
+                    ];
+                },
+            ],
+            [
+                !!id,
+                async () => {
+                    const [[{ title }], quota] =
+                        await getItemsFromAPI<PostInfo>(
+                            site,
+                            `/posts/${id}`,
+                            "Bqe1ika.a"
+                        );
+                    return [title, quota || quotaLeft];
+                },
+            ],
+        ];
 
-        const { items, quota_remaining } = <ApiRes> await res.json();
-
-        if (!items.length) return noResponse;
-
-        const [{ title }] = items;
-        return [title, quota_remaining] as const;
+        const [, action] = actions.find(([condition]) => !!condition) || [];
+        return action ? await action() : noResponse;
     };
 
     const fetchTitle = async (link: string) => {

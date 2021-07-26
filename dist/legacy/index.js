@@ -202,14 +202,41 @@ var __values = (this && this.__values) || function(o) {
     var isStackExchangeLink = function (link) {
         return /https?:\/\/(www\.)?(meta\.)?stack(?:overflow|exchange)\.com/.test(link);
     };
-    var fetchTitleFromAPI = function (link, quotaLeft) { return __awaiter(void 0, void 0, void 0, function () {
-        var version, base, _a, _b, site, exprs, id, exprs_1, exprs_1_1, regex, matcher, _c, postId, noResponse, url, res, _d, items, quota_remaining, _e, title;
-        var e_1, _f;
-        return __generator(this, function (_g) {
-            switch (_g.label) {
+    var getItemsFromAPI = function (site, path, filter) { return __awaiter(void 0, void 0, void 0, function () {
+        var version, base, key, url, res, _a, _b, items, quota_remaining;
+        return __generator(this, function (_c) {
+            switch (_c.label) {
                 case 0:
                     version = 2.2;
                     base = "https://api.stackexchange.com/" + version;
+                    key = "nWopg6u2CiSfx8SXs3dyVg((";
+                    url = new URL("" + base + path);
+                    url.search = new URLSearchParams({ key: key, site: site, filter: filter }).toString();
+                    return [4, fetch(url.toString())];
+                case 1:
+                    res = _c.sent();
+                    if (!res.ok)
+                        return [2, [[]]];
+                    return [4, res.json()];
+                case 2:
+                    _a = (_c.sent()), _b = _a.items, items = _b === void 0 ? [] : _b, quota_remaining = _a.quota_remaining;
+                    return [2, [items, quota_remaining]];
+            }
+        });
+    }); };
+    var makeCommentTitleFromAPI = function (comment) {
+        if (!comment)
+            return "";
+        var body_markdown = comment.body_markdown, creation_date = comment.creation_date, display_name = comment.owner.display_name;
+        var parsedDate = new Date(creation_date * 1e3).toLocaleDateString();
+        return body_markdown + " by " + display_name + " on " + parsedDate;
+    };
+    var fetchTitleFromAPI = function (link, quotaLeft) { return __awaiter(void 0, void 0, void 0, function () {
+        var _a, _b, site, exprs, id, exprs_1, exprs_1_1, regex, matcher, _c, postId, noResponse, _d, commentId, actions, _e, action, _f;
+        var e_1, _g;
+        return __generator(this, function (_h) {
+            switch (_h.label) {
+                case 0:
                     _a = __read(link.match(/((?:meta\.)?[\w-]+)\.com/i) || [], 2), _b = _a[1], site = _b === void 0 ? "stackoverflow" : _b;
                     exprs = [
                         "https?:\\/\\/" + site + "\\.com\\/questions\\/\\d+\\/.+?\\/(\\d+)",
@@ -230,31 +257,58 @@ var __values = (this && this.__values) || function(o) {
                     catch (e_1_1) { e_1 = { error: e_1_1 }; }
                     finally {
                         try {
-                            if (exprs_1_1 && !exprs_1_1.done && (_f = exprs_1.return)) _f.call(exprs_1);
+                            if (exprs_1_1 && !exprs_1_1.done && (_g = exprs_1.return)) _g.call(exprs_1);
                         }
                         finally { if (e_1) throw e_1.error; }
                     }
                     noResponse = ["", quotaLeft];
-                    if (!id)
-                        return [2, noResponse];
-                    url = new URL(base + "/posts/" + id);
-                    url.search = new URLSearchParams({
-                        site: site,
-                        key: "nWopg6u2CiSfx8SXs3dyVg((",
-                        filter: "Bqe1ika.a",
-                    }).toString();
-                    return [4, fetch(url.toString())];
+                    _d = __read(link.match(new RegExp("https?:\\/\\/" + site + "\\.com.+?#comment(\\d+)", "i")) || [], 2), commentId = _d[1];
+                    actions = [
+                        [
+                            !!commentId,
+                            function () { return __awaiter(void 0, void 0, void 0, function () {
+                                var _a, _b, comment, quota;
+                                return __generator(this, function (_c) {
+                                    switch (_c.label) {
+                                        case 0: return [4, getItemsFromAPI(site, "/comments/" + commentId, "7W_5HvYg2")];
+                                        case 1:
+                                            _a = __read.apply(void 0, [_c.sent(), 2]), _b = __read(_a[0], 1), comment = _b[0], quota = _a[1];
+                                            return [2, [
+                                                    makeCommentTitleFromAPI(comment),
+                                                    quota || quotaLeft,
+                                                ]];
+                                    }
+                                });
+                            }); },
+                        ],
+                        [
+                            !!id,
+                            function () { return __awaiter(void 0, void 0, void 0, function () {
+                                var _a, _b, title, quota;
+                                return __generator(this, function (_c) {
+                                    switch (_c.label) {
+                                        case 0: return [4, getItemsFromAPI(site, "/posts/" + id, "Bqe1ika.a")];
+                                        case 1:
+                                            _a = __read.apply(void 0, [_c.sent(), 2]), _b = __read(_a[0], 1), title = _b[0].title, quota = _a[1];
+                                            return [2, [title, quota || quotaLeft]];
+                                    }
+                                });
+                            }); },
+                        ],
+                    ];
+                    _e = __read(actions.find(function (_a) {
+                        var _b = __read(_a, 1), condition = _b[0];
+                        return !!condition;
+                    }) || [], 2), action = _e[1];
+                    if (!action) return [3, 2];
+                    return [4, action()];
                 case 1:
-                    res = _g.sent();
-                    if (!res.ok)
-                        return [2, noResponse];
-                    return [4, res.json()];
+                    _f = _h.sent();
+                    return [3, 3];
                 case 2:
-                    _d = _g.sent(), items = _d.items, quota_remaining = _d.quota_remaining;
-                    if (!items.length)
-                        return [2, noResponse];
-                    _e = __read(items, 1), title = _e[0].title;
-                    return [2, [title, quota_remaining]];
+                    _f = noResponse;
+                    _h.label = 3;
+                case 3: return [2, _f];
             }
         });
     }); };

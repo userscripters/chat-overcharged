@@ -221,9 +221,26 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     };
     const makeLinkMarkdown = (text, link) => `[${text}](${link})`;
     const isStackExchangeLink = (link) => /https?:\/\/(www\.)?(meta\.)?stack(?:overflow|exchange)\.com/.test(link);
-    const fetchTitleFromAPI = (link, quotaLeft) => __awaiter(void 0, void 0, void 0, function* () {
+    const getItemsFromAPI = (site, path, filter) => __awaiter(void 0, void 0, void 0, function* () {
         const version = 2.2;
         const base = `https://api.stackexchange.com/${version}`;
+        const key = "nWopg6u2CiSfx8SXs3dyVg((";
+        const url = new URL(`${base}${path}`);
+        url.search = new URLSearchParams({ key, site, filter }).toString();
+        const res = yield fetch(url.toString());
+        if (!res.ok)
+            return [[]];
+        const { items = [], quota_remaining } = (yield res.json());
+        return [items, quota_remaining];
+    });
+    const makeCommentTitleFromAPI = (comment) => {
+        if (!comment)
+            return "";
+        const { body_markdown, creation_date, owner: { display_name }, } = comment;
+        const parsedDate = new Date(creation_date * 1e3).toLocaleDateString();
+        return `${body_markdown} by ${display_name} on ${parsedDate}`;
+    };
+    const fetchTitleFromAPI = (link, quotaLeft) => __awaiter(void 0, void 0, void 0, function* () {
         const [, site = "stackoverflow"] = link.match(/((?:meta\.)?[\w-]+)\.com/i) || [];
         const exprs = [
             `https?:\\/\\/${site}\\.com\\/questions\\/\\d+\\/.+?\\/(\\d+)`,
@@ -240,22 +257,28 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             break;
         }
         const noResponse = ["", quotaLeft];
-        if (!id)
-            return noResponse;
-        const url = new URL(`${base}/posts/${id}`);
-        url.search = new URLSearchParams({
-            site,
-            key: "nWopg6u2CiSfx8SXs3dyVg((",
-            filter: "Bqe1ika.a",
-        }).toString();
-        const res = yield fetch(url.toString());
-        if (!res.ok)
-            return noResponse;
-        const { items, quota_remaining } = yield res.json();
-        if (!items.length)
-            return noResponse;
-        const [{ title }] = items;
-        return [title, quota_remaining];
+        const [, commentId] = link.match(new RegExp(`https?:\\/\\/${site}\\.com.+?#comment(\\d+)`, "i")) || [];
+        const actions = [
+            [
+                !!commentId,
+                () => __awaiter(void 0, void 0, void 0, function* () {
+                    const [[comment], quota] = yield getItemsFromAPI(site, `/comments/${commentId}`, "7W_5HvYg2");
+                    return [
+                        makeCommentTitleFromAPI(comment),
+                        quota || quotaLeft,
+                    ];
+                }),
+            ],
+            [
+                !!id,
+                () => __awaiter(void 0, void 0, void 0, function* () {
+                    const [[{ title }], quota] = yield getItemsFromAPI(site, `/posts/${id}`, "Bqe1ika.a");
+                    return [title, quota || quotaLeft];
+                }),
+            ],
+        ];
+        const [, action] = actions.find(([condition]) => !!condition) || [];
+        return action ? yield action() : noResponse;
     });
     const fetchTitle = (link) => __awaiter(void 0, void 0, void 0, function* () {
         try {

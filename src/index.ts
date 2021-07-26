@@ -123,12 +123,6 @@ type ApiRes = { items: PostInfo[]; quota_remaining: number };
         .${scope} .${primary}:focus {
             background-color: #3ca4ff;
         }`);
-
-        sheet.insertRule(`
-        .${scope} .${secondary}:hover,
-        .${scope} .${secondary}:focus {
-            color: white;
-        }`);
     };
 
     const addScriptStyles = (cnf: Config) => {

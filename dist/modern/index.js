@@ -81,11 +81,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         .${scope} .${primary}:focus {
             background-color: #3ca4ff;
         }`);
-        sheet.insertRule(`
-        .${scope} .${secondary}:hover,
-        .${scope} .${secondary}:focus {
-            color: white;
-        }`);
     };
     const addScriptStyles = (cnf) => {
         const style = d.createElement("style");

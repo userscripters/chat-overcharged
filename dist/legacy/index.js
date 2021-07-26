@@ -119,7 +119,6 @@ var __values = (this && this.__values) || function(o) {
         sheet.insertRule("\n        ." + scope + " ." + primary + " {\n            background-color: rgb(55, 138, 211);\n            color: white;\n        }");
         sheet.insertRule("\n        ." + scope + " ." + secondary + " {\n            background-color: unset;\n            color: var(--white);\n        }");
         sheet.insertRule("\n        ." + scope + " ." + primary + ":hover,\n        ." + scope + " ." + primary + ":focus {\n            background-color: #3ca4ff;\n        }");
-        sheet.insertRule("\n        ." + scope + " ." + secondary + ":hover,\n        ." + scope + " ." + secondary + ":focus {\n            color: white;\n        }");
     };
     var addScriptStyles = function (cnf) {
         var style = d.createElement("style");

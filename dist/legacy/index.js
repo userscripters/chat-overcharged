@@ -200,7 +200,7 @@ var __values = (this && this.__values) || function(o) {
         return "[" + text + "](" + link + ")";
     };
     var isStackExchangeLink = function (link) {
-        return /https?:\/\/(www\.)?(meta\.)?stack(?:overflow|exchange)\.com/.test(link);
+        return /https?:\/\/(www\.)?(meta\.)?(?:stack(?:overflow|exchange|apps)|superuser|askubuntu)\.com/.test(link);
     };
     var getItemsFromAPI = function (site, path, filter) { return __awaiter(void 0, void 0, void 0, function () {
         var version, base, key, url, res, _a, _b, items, quota_remaining;

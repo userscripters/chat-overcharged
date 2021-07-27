@@ -220,7 +220,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         setTimeout(() => parentElement.classList.remove(colorCls), 3e3);
     };
     const makeLinkMarkdown = (text, link) => `[${text}](${link})`;
-    const isStackExchangeLink = (link) => /https?:\/\/(www\.)?(meta\.)?stack(?:overflow|exchange)\.com/.test(link);
+    const isStackExchangeLink = (link) => /https?:\/\/(www\.)?(meta\.)?(?:stack(?:overflow|exchange|apps)|superuser|askubuntu)\.com/.test(link);
     const getItemsFromAPI = (site, path, filter) => __awaiter(void 0, void 0, void 0, function* () {
         const version = 2.2;
         const base = `https://api.stackexchange.com/${version}`;

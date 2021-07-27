@@ -315,7 +315,7 @@ type ApiActions = [boolean, () => Promise<ApiTitleInfo>][];
 
     //for now, we are only interested in SO / Meta SO links
     const isStackExchangeLink = (link: string) =>
-        /https?:\/\/(www\.)?(meta\.)?stack(?:overflow|exchange)\.com/.test(
+        /https?:\/\/(www\.)?(meta\.)?(?:stack(?:overflow|exchange|apps)|superuser|askubuntu)\.com/.test(
             link
         );
 

@@ -1,6 +1,6 @@
 {
   "name": "@userscripters/chat-overcharged",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "Chat experience improvements",
   "scripts": {
     "test": "mocha",

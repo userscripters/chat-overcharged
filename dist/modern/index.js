@@ -9,7 +9,7 @@
 // @namespace       userscripters
 // @source          git+https://github.com/userscripters/chat-overcharged.git
 // @supportURL      https://github.com/userscripters/chat-overcharged/issues
-// @version         1.6.1
+// @version         1.6.2
 // ==/UserScript==
 
 "use strict";
@@ -63,7 +63,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             min-width: 8vh;
             outline: none;
             border: none;
-            border-radius: 0.5vh 0.5vw;
+            border-radius: 0.5vh 0.5vh;
             cursor: pointer;
         }`);
         sheet.insertRule(`

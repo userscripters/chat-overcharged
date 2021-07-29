@@ -115,7 +115,7 @@ type ApiActions = [boolean, () => Promise<ApiTitleInfo>][];
             min-width: 8vh;
             outline: none;
             border: none;
-            border-radius: 0.5vh 0.5vw;
+            border-radius: 0.5vh 0.5vh;
             cursor: pointer;
         }`);
 

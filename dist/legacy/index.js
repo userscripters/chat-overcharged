@@ -9,7 +9,7 @@
 // @namespace       userscripters
 // @source          git+https://github.com/userscripters/chat-overcharged.git
 // @supportURL      https://github.com/userscripters/chat-overcharged/issues
-// @version         1.6.1
+// @version         1.6.2
 // ==/UserScript==
 
 "use strict";
@@ -115,7 +115,7 @@ var __values = (this && this.__values) || function(o) {
         },
     };
     var addButtonStyles = function (sheet, scope, primary, secondary) {
-        sheet.insertRule("\n        ." + scope + " ." + primary + ",\n        ." + scope + " ." + secondary + " {\n            height: 4vh;\n            min-width: 8vh;\n            outline: none;\n            border: none;\n            border-radius: 0.5vh 0.5vw;\n            cursor: pointer;\n        }");
+        sheet.insertRule("\n        ." + scope + " ." + primary + ",\n        ." + scope + " ." + secondary + " {\n            height: 4vh;\n            min-width: 8vh;\n            outline: none;\n            border: none;\n            border-radius: 0.5vh 0.5vh;\n            cursor: pointer;\n        }");
         sheet.insertRule("\n        ." + scope + " ." + primary + " {\n            background-color: rgb(55, 138, 211);\n            color: white;\n        }");
         sheet.insertRule("\n        ." + scope + " ." + secondary + " {\n            background-color: unset;\n            color: var(--white);\n        }");
         sheet.insertRule("\n        ." + scope + " ." + primary + ":hover,\n        ." + scope + " ." + primary + ":focus {\n            background-color: #3ca4ff;\n        }");

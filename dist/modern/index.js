@@ -431,24 +431,49 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
     let previousX = 0;
     let previousY = 0;
-    d.addEventListener("drag", ({ dataTransfer, target, clientX, clientY }) => {
-        if (target.id !== modalId || !dataTransfer)
+    let zeroed = 0;
+    let isDragging = false;
+    const handleCoordChange = ({ clientX, clientY }) => {
+        const modal = d.getElementById(modalId);
+        if (!modal)
             return;
-        const { style } = target;
         previousX || (previousX = clientX);
         previousY || (previousY = clientY);
-        let { style: { top, left }, } = target;
+        let { style: { top, left }, } = modal;
         if (!top && !left) {
-            const computed = w.getComputedStyle(target);
+            const computed = w.getComputedStyle(modal);
             top = computed.top;
             left = computed.left;
         }
         const moveX = clientX - previousX;
         const moveY = clientY - previousY;
+        const { style } = modal;
         style.left = `${parseInt(left) + moveX}px`;
         style.top = `${parseInt(top) + moveY}px`;
         previousX = clientX;
         previousY = clientY;
+    };
+    d.addEventListener("dragstart", ({ target }) => {
+        if (target === d.getElementById(modalId))
+            isDragging = true;
     });
-    d.addEventListener("dragover", (e) => e.preventDefault());
+    d.addEventListener("dragend", ({ target }) => {
+        if (target === d.getElementById(modalId)) {
+            isDragging = false;
+            previousX = 0;
+            previousY = 0;
+        }
+    });
+    d.addEventListener("drag", (event) => {
+        zeroed = event.clientX ? 0 : zeroed < 3 ? zeroed + 1 : 3;
+        if (zeroed >= 3 || !isDragging)
+            return;
+        return handleCoordChange(event);
+    });
+    d.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        if (zeroed < 3 || !isDragging)
+            return;
+        return handleCoordChange(e);
+    });
 })(window, document);

@@ -501,25 +501,52 @@ var __values = (this && this.__values) || function(o) {
     });
     var previousX = 0;
     var previousY = 0;
-    d.addEventListener("drag", function (_a) {
-        var dataTransfer = _a.dataTransfer, target = _a.target, clientX = _a.clientX, clientY = _a.clientY;
-        if (target.id !== modalId || !dataTransfer)
+    var zeroed = 0;
+    var isDragging = false;
+    var handleCoordChange = function (_a) {
+        var clientX = _a.clientX, clientY = _a.clientY;
+        var modal = d.getElementById(modalId);
+        if (!modal)
             return;
-        var style = target.style;
         previousX || (previousX = clientX);
         previousY || (previousY = clientY);
-        var _b = target.style, top = _b.top, left = _b.left;
+        var _b = modal.style, top = _b.top, left = _b.left;
         if (!top && !left) {
-            var computed = w.getComputedStyle(target);
+            var computed = w.getComputedStyle(modal);
             top = computed.top;
             left = computed.left;
         }
         var moveX = clientX - previousX;
         var moveY = clientY - previousY;
+        var style = modal.style;
         style.left = parseInt(left) + moveX + "px";
         style.top = parseInt(top) + moveY + "px";
         previousX = clientX;
         previousY = clientY;
+    };
+    d.addEventListener("dragstart", function (_a) {
+        var target = _a.target;
+        if (target === d.getElementById(modalId))
+            isDragging = true;
     });
-    d.addEventListener("dragover", function (e) { return e.preventDefault(); });
+    d.addEventListener("dragend", function (_a) {
+        var target = _a.target;
+        if (target === d.getElementById(modalId)) {
+            isDragging = false;
+            previousX = 0;
+            previousY = 0;
+        }
+    });
+    d.addEventListener("drag", function (event) {
+        zeroed = event.clientX ? 0 : zeroed < 3 ? zeroed + 1 : 3;
+        if (zeroed >= 3 || !isDragging)
+            return;
+        return handleCoordChange(event);
+    });
+    d.addEventListener("dragover", function (e) {
+        e.preventDefault();
+        if (zeroed < 3 || !isDragging)
+            return;
+        return handleCoordChange(e);
+    });
 })(window, document);

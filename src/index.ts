@@ -652,21 +652,23 @@ type ApiActions = [boolean, () => Promise<ApiTitleInfo>][];
 
     let previousX = 0;
     let previousY = 0;
-    d.addEventListener("drag", ({ dataTransfer, target, clientX, clientY }) => {
-        if ((target as HTMLElement).id !== modalId || !dataTransfer) return;
+    let zeroed = 0;
+    let isDragging = false;
 
-        const { style } = target as HTMLElement;
+    const handleCoordChange = ({ clientX, clientY }: MouseEvent) => {
+        const modal = d.getElementById(modalId);
+        if (!modal) return;
 
         previousX ||= clientX;
         previousY ||= clientY;
 
         let {
             style: { top, left },
-        } = target as HTMLElement;
+        } = modal;
 
         //get computed styles the first time
         if (!top && !left) {
-            const computed = w.getComputedStyle(target as HTMLElement);
+            const computed = w.getComputedStyle(modal);
             top = computed.top;
             left = computed.left;
         }
@@ -674,12 +676,37 @@ type ApiActions = [boolean, () => Promise<ApiTitleInfo>][];
         const moveX = clientX - previousX;
         const moveY = clientY - previousY;
 
+        const { style } = modal;
         style.left = `${parseInt(left) + moveX}px`;
         style.top = `${parseInt(top) + moveY}px`;
 
         previousX = clientX;
         previousY = clientY;
+    };
+
+    d.addEventListener("dragstart", ({ target }) => {
+        if (target === d.getElementById(modalId)) isDragging = true;
+    });
+    d.addEventListener("dragend", ({ target }) => {
+        if (target === d.getElementById(modalId)) {
+            isDragging = false;
+            previousX = 0;
+            previousY = 0;
+        }
     });
 
-    d.addEventListener("dragover", (e) => e.preventDefault());
+    d.addEventListener("drag", (event) => {
+        //if clientX zeroes out 3 times in a row, we are dealing with an FF bug
+        zeroed = event.clientX ? 0 : zeroed < 3 ? zeroed + 1 : 3;
+
+        if (zeroed >= 3 || !isDragging) return;
+        return handleCoordChange(event);
+    });
+
+    d.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        //fixes this old FF bug: https://bugzilla.mozilla.org/show_bug.cgi?id=505521
+        if (zeroed < 3 || !isDragging) return;
+        return handleCoordChange(e);
+    });
 })(window, document);

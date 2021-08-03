@@ -6,7 +6,7 @@
 | Name         | @userscripters/chat-overcharged    |
 | Description  | Chat experience improvements           |
 | License      | [GPL-3.0-or-later](https://spdx.org/licenses/GPL-3.0-or-later)                 |
-| Version      | 1.6.2               |
+| Version      | 1.7.0               |
 
 # Support
 

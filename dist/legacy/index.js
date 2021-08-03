@@ -369,10 +369,12 @@ var __values = (this && this.__values) || function(o) {
         first.focus();
         return modal;
     };
-    var openExistingModal = function (modal, selectedText, cls) {
+    var toggleExistingModal = function (modal, selectedText, cls, chatInputId) {
         var _a = __read(__spreadArray([], __read(modal.querySelectorAll("input"))), 2), _link = _a[0], title = _a[1];
         title.value = selectedText;
-        return openModal(modal, cls);
+        return modal.classList.contains(cls)
+            ? openModal(modal, cls)
+            : closeModal(modal, cls, chatInputId);
     };
     var openLinkModal = function (_a) {
         var ids = _a.ids, classes = _a.classes;
@@ -384,7 +386,7 @@ var __values = (this && this.__values) || function(o) {
         var selectedText = value.slice(selectionStart, selectionEnd);
         var existing = d.getElementById(ids.links.modal);
         if (existing)
-            return openExistingModal(existing, selectedText, collapsed);
+            return toggleExistingModal(existing, selectedText, collapsed, ids.chat.input);
         var modal = d.createElement("div");
         modal.classList.add(classes.links.modal, classes.styles.primaryBckg, collapsed);
         modal.id = ids.links.modal;

@@ -327,12 +327,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         first.focus();
         return modal;
     };
-    const openExistingModal = (modal, selectedText, cls) => {
+    const toggleExistingModal = (modal, selectedText, cls, chatInputId) => {
         const [_link, title] = [
             ...modal.querySelectorAll("input"),
         ];
         title.value = selectedText;
-        return openModal(modal, cls);
+        return modal.classList.contains(cls)
+            ? openModal(modal, cls)
+            : closeModal(modal, cls, chatInputId);
     };
     const openLinkModal = ({ ids, classes }) => {
         const { collapsed } = classes.styles;
@@ -343,7 +345,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         const selectedText = value.slice(selectionStart, selectionEnd);
         const existing = d.getElementById(ids.links.modal);
         if (existing)
-            return openExistingModal(existing, selectedText, collapsed);
+            return toggleExistingModal(existing, selectedText, collapsed, ids.chat.input);
         const modal = d.createElement("div");
         modal.classList.add(classes.links.modal, classes.styles.primaryBckg, collapsed);
         modal.id = ids.links.modal;

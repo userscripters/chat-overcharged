@@ -11,7 +11,7 @@
     "uglify-legacy": "uglifyjs dist/legacy/* --compress --mangle -o dist/legacy/index.min.js",
     "build-modern": "tsc --outDir dist/modern && npm run uglify-modern",
     "build-legacy": "tsc --target es5 --outDir dist/legacy && npm run uglify-legacy",
-    "build-all": "npm run prebuild && npm run build-legacy && npm run build-modern && npm run headers-tm && npm run readme",
+    "build-all": "bash ./scripts/build.sh",
     "headers-tm": "bash ./scripts/headers.sh",
     "readme": "generate-readme",
     "postversion": "npm run headers-tm && npm run readme && git add . && git commit --amend --no-edit"

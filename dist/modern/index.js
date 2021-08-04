@@ -32,6 +32,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             links: {
                 form: "link-form",
                 modal: "link-modal",
+                linkInput: "link-url",
+                titleInput: "link-title",
             },
             quotas: {
                 api: "api-quotas",
@@ -222,6 +224,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     const makeLinkMarkdown = (text, link) => `[${text}](${link})`;
     const isLink = (link) => /^(?:https?:\/\/)|www\.|javascript:.+?/.test(link);
     const isStackExchangeLink = (link) => /https?:\/\/(www\.)?(meta\.)?(?:stack(?:overflow|exchange|apps)|superuser|askubuntu)\.com/.test(link);
+    const isFocusingInputs = ({ ids: { links } }) => {
+        const { activeElement } = d;
+        return [links.linkInput, links.titleInput].some((id) => d.getElementById(id) === activeElement);
+    };
     const getItemsFromAPI = (site, path, filter) => __awaiter(void 0, void 0, void 0, function* () {
         const version = 2.2;
         const base = `https://api.stackexchange.com/${version}`;
@@ -368,8 +374,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         form.id = ids.links.form;
         const linkInput = d.createElement("input");
         linkInput.type = "text";
+        linkInput.id = ids.links.linkInput;
         const titleInput = d.createElement("input");
         titleInput.type = "text";
+        titleInput.id = ids.links.titleInput;
         const quotaInfo = createQuotaInfo(ids.quotas.api, classes.quotas.api);
         let quota = 300;
         linkInput.addEventListener("change", () => __awaiter(void 0, void 0, void 0, function* () {
@@ -467,7 +475,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         previousX = clientX;
         previousY = clientY;
     };
-    d.addEventListener("dragstart", ({ target }) => {
+    d.addEventListener("dragstart", (event) => {
+        if (isFocusingInputs(config))
+            return event.preventDefault();
+        const { target } = event;
         if (target === d.getElementById(modalId))
             isDragging = true;
     });

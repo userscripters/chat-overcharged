@@ -325,6 +325,13 @@ type ApiActions = [boolean, () => Promise<ApiTitleInfo>][];
             link
         );
 
+    const isFocusingInputs = ({ ids: { links } }: Config) => {
+        const { activeElement } = d;
+        return [links.linkInput, links.titleInput].some(
+            (id) => d.getElementById(id) === activeElement
+        );
+    };
+
     const getItemsFromAPI = async <T>(
         site: string,
         path: string,
@@ -719,9 +726,12 @@ type ApiActions = [boolean, () => Promise<ApiTitleInfo>][];
         previousY = clientY;
     };
 
-    d.addEventListener("dragstart", ({ target }) => {
+    d.addEventListener("dragstart", (event) => {
+        if (isFocusingInputs(config)) return event.preventDefault();
+        const { target } = event;
         if (target === d.getElementById(modalId)) isDragging = true;
     });
+
     d.addEventListener("dragend", ({ target }) => {
         if (target === d.getElementById(modalId)) {
             isDragging = false;

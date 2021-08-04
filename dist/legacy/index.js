@@ -91,6 +91,8 @@ var __values = (this && this.__values) || function(o) {
             links: {
                 form: "link-form",
                 modal: "link-modal",
+                linkInput: "link-url",
+                titleInput: "link-title",
             },
             quotas: {
                 api: "api-quotas",
@@ -204,6 +206,11 @@ var __values = (this && this.__values) || function(o) {
     };
     var isStackExchangeLink = function (link) {
         return /https?:\/\/(www\.)?(meta\.)?(?:stack(?:overflow|exchange|apps)|superuser|askubuntu)\.com/.test(link);
+    };
+    var isFocusingInputs = function (_a) {
+        var links = _a.ids.links;
+        var activeElement = d.activeElement;
+        return [links.linkInput, links.titleInput].some(function (id) { return d.getElementById(id) === activeElement; });
     };
     var getItemsFromAPI = function (site, path, filter) { return __awaiter(void 0, void 0, void 0, function () {
         var version, base, key, url, res, _a, _b, items, quota_remaining;
@@ -413,8 +420,10 @@ var __values = (this && this.__values) || function(o) {
         form.id = ids.links.form;
         var linkInput = d.createElement("input");
         linkInput.type = "text";
+        linkInput.id = ids.links.linkInput;
         var titleInput = d.createElement("input");
         titleInput.type = "text";
+        titleInput.id = ids.links.titleInput;
         var quotaInfo = createQuotaInfo(ids.quotas.api, classes.quotas.api);
         var quota = 300;
         linkInput.addEventListener("change", function () { return __awaiter(void 0, void 0, void 0, function () {
@@ -540,8 +549,10 @@ var __values = (this && this.__values) || function(o) {
         previousX = clientX;
         previousY = clientY;
     };
-    d.addEventListener("dragstart", function (_a) {
-        var target = _a.target;
+    d.addEventListener("dragstart", function (event) {
+        if (isFocusingInputs(config))
+            return event.preventDefault();
+        var target = event.target;
         if (target === d.getElementById(modalId))
             isDragging = true;
     });

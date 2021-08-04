@@ -9,7 +9,7 @@
 // @namespace       userscripters
 // @source          git+https://github.com/userscripters/chat-overcharged.git
 // @supportURL      https://github.com/userscripters/chat-overcharged/issues
-// @version         1.8.0
+// @version         1.8.1
 // ==/UserScript==
 
 "use strict";

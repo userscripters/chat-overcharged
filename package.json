@@ -1,6 +1,6 @@
 {
   "name": "@userscripters/chat-overcharged",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "Chat experience improvements",
   "scripts": {
     "test": "mocha",
@@ -14,7 +14,7 @@
     "build-all": "bash ./scripts/build.sh",
     "headers-tm": "bash ./scripts/headers.sh",
     "readme": "generate-readme",
-    "postversion": "npm run headers-tm && npm run readme && git add . && git commit --amend --no-edit"
+    "postversion": "npm run build-all && git add . && git commit --amend --no-edit"
   },
   "repository": {
     "type": "git",

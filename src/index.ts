@@ -18,6 +18,8 @@ type Config = {
         links: {
             form: string;
             modal: string;
+            linkInput: string;
+            titleInput: string;
         };
         quotas: {
             api: string;
@@ -78,6 +80,8 @@ type ApiActions = [boolean, () => Promise<ApiTitleInfo>][];
             links: {
                 form: "link-form",
                 modal: "link-modal",
+                linkInput: "link-url",
+                titleInput: "link-title",
             },
             quotas: {
                 api: "api-quotas",
@@ -553,9 +557,11 @@ type ApiActions = [boolean, () => Promise<ApiTitleInfo>][];
 
         const linkInput = d.createElement("input");
         linkInput.type = "text";
+        linkInput.id = ids.links.linkInput;
 
         const titleInput = d.createElement("input");
         titleInput.type = "text";
+        titleInput.id = ids.links.titleInput;
 
         const quotaInfo = createQuotaInfo(ids.quotas.api, classes.quotas.api);
 

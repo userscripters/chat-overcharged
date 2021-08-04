@@ -220,6 +220,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         setTimeout(() => parentElement.classList.remove(colorCls), 3e3);
     };
     const makeLinkMarkdown = (text, link) => `[${text}](${link})`;
+    const isLink = (link) => /^(?:https?:\/\/)|www\.|javascript:.+?/.test(link);
     const isStackExchangeLink = (link) => /https?:\/\/(www\.)?(meta\.)?(?:stack(?:overflow|exchange|apps)|superuser|askubuntu)\.com/.test(link);
     const getItemsFromAPI = (site, path, filter) => __awaiter(void 0, void 0, void 0, function* () {
         const version = 2.2;
@@ -327,11 +328,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         first.focus();
         return modal;
     };
+    const setSelectedText = (link, title, text) => {
+        const gotLink = isLink(text);
+        const insertTextTo = gotLink ? link : title;
+        insertTextTo.value = text;
+        const event = new UIEvent("change", {
+            bubbles: true,
+            cancelable: true,
+        });
+        if (gotLink)
+            insertTextTo.dispatchEvent(event);
+    };
     const toggleExistingModal = (modal, selectedText, cls, chatInputId) => {
-        const [_link, title] = [
+        const [link, title] = [
             ...modal.querySelectorAll("input"),
         ];
-        title.value = selectedText;
+        setSelectedText(link, title, selectedText);
         return modal.classList.contains(cls)
             ? openModal(modal, cls)
             : closeModal(modal, cls, chatInputId);
@@ -358,7 +370,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         linkInput.type = "text";
         const titleInput = d.createElement("input");
         titleInput.type = "text";
-        titleInput.value = selectedText;
         const quotaInfo = createQuotaInfo(ids.quotas.api, classes.quotas.api);
         let quota = 300;
         linkInput.addEventListener("change", () => __awaiter(void 0, void 0, void 0, function* () {
@@ -382,6 +393,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         });
         const clear = createButton("Clear", "btn-secondary");
         clear.addEventListener("click", () => form.reset());
+        setSelectedText(linkInput, titleInput, selectedText);
         form.append(linkLbl, linkInput, titleLbl, titleInput, submit, clear, quotaInfo);
         modal.append(closeIcon, form);
         const { body } = d;

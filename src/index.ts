@@ -313,7 +313,9 @@ type ApiActions = [boolean, () => Promise<ApiTitleInfo>][];
     const makeLinkMarkdown = (text: string, link: string) =>
         `[${text}](${link})`;
 
-    //for now, we are only interested in SO / Meta SO links
+    const isLink = (link: string) =>
+        /^(?:https?:\/\/)|www\.|javascript:.+?/.test(link);
+
     const isStackExchangeLink = (link: string) =>
         /https?:\/\/(www\.)?(meta\.)?(?:stack(?:overflow|exchange|apps)|superuser|askubuntu)\.com/.test(
             link
@@ -480,16 +482,34 @@ type ApiActions = [boolean, () => Promise<ApiTitleInfo>][];
         return modal;
     };
 
+    const setSelectedText = (
+        link: HTMLInputElement,
+        title: HTMLInputElement,
+        text: string
+    ) => {
+        const gotLink = isLink(text);
+        const insertTextTo = gotLink ? link : title;
+        insertTextTo.value = text;
+
+        const event = new UIEvent("change", {
+            bubbles: true,
+            cancelable: true,
+        });
+
+        if (gotLink) insertTextTo.dispatchEvent(event);
+    };
+
     const toggleExistingModal = (
         modal: HTMLElement,
         selectedText: string,
         cls: string,
         chatInputId: string
     ) => {
-        const [_link, title] = [
+        const [link, title] = [
             ...modal.querySelectorAll<HTMLInputElement>("input"),
         ];
-        title.value = selectedText;
+
+        setSelectedText(link, title, selectedText);
 
         return modal.classList.contains(cls)
             ? openModal(modal, cls)
@@ -536,7 +556,6 @@ type ApiActions = [boolean, () => Promise<ApiTitleInfo>][];
 
         const titleInput = d.createElement("input");
         titleInput.type = "text";
-        titleInput.value = selectedText;
 
         const quotaInfo = createQuotaInfo(ids.quotas.api, classes.quotas.api);
 
@@ -578,6 +597,8 @@ type ApiActions = [boolean, () => Promise<ApiTitleInfo>][];
 
         const clear = createButton("Clear", "btn-secondary");
         clear.addEventListener("click", () => form.reset());
+
+        setSelectedText(linkInput, titleInput, selectedText);
 
         form.append(
             linkLbl,

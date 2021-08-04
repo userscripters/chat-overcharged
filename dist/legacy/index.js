@@ -199,6 +199,9 @@ var __values = (this && this.__values) || function(o) {
     var makeLinkMarkdown = function (text, link) {
         return "[" + text + "](" + link + ")";
     };
+    var isLink = function (link) {
+        return /^(?:https?:\/\/)|www\.|javascript:.+?/.test(link);
+    };
     var isStackExchangeLink = function (link) {
         return /https?:\/\/(www\.)?(meta\.)?(?:stack(?:overflow|exchange|apps)|superuser|askubuntu)\.com/.test(link);
     };
@@ -369,9 +372,20 @@ var __values = (this && this.__values) || function(o) {
         first.focus();
         return modal;
     };
+    var setSelectedText = function (link, title, text) {
+        var gotLink = isLink(text);
+        var insertTextTo = gotLink ? link : title;
+        insertTextTo.value = text;
+        var event = new UIEvent("change", {
+            bubbles: true,
+            cancelable: true,
+        });
+        if (gotLink)
+            insertTextTo.dispatchEvent(event);
+    };
     var toggleExistingModal = function (modal, selectedText, cls, chatInputId) {
-        var _a = __read(__spreadArray([], __read(modal.querySelectorAll("input"))), 2), _link = _a[0], title = _a[1];
-        title.value = selectedText;
+        var _a = __read(__spreadArray([], __read(modal.querySelectorAll("input"))), 2), link = _a[0], title = _a[1];
+        setSelectedText(link, title, selectedText);
         return modal.classList.contains(cls)
             ? openModal(modal, cls)
             : closeModal(modal, cls, chatInputId);
@@ -401,7 +415,6 @@ var __values = (this && this.__values) || function(o) {
         linkInput.type = "text";
         var titleInput = d.createElement("input");
         titleInput.type = "text";
-        titleInput.value = selectedText;
         var quotaInfo = createQuotaInfo(ids.quotas.api, classes.quotas.api);
         var quota = 300;
         linkInput.addEventListener("change", function () { return __awaiter(void 0, void 0, void 0, function () {
@@ -442,6 +455,7 @@ var __values = (this && this.__values) || function(o) {
         });
         var clear = createButton("Clear", "btn-secondary");
         clear.addEventListener("click", function () { return form.reset(); });
+        setSelectedText(linkInput, titleInput, selectedText);
         form.append(linkLbl, linkInput, titleLbl, titleInput, submit, clear, quotaInfo);
         modal.append(closeIcon, form);
         var body = d.body;

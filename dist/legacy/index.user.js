@@ -571,7 +571,8 @@ var __values = (this && this.__values) || function(o) {
         return handleCoordChange(event);
     });
     d.addEventListener("dragover", function (e) {
-        e.preventDefault();
+        if (isDragging)
+            e.preventDefault();
         if (zeroed < 3 || !isDragging)
             return;
         return handleCoordChange(e);

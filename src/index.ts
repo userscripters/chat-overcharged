@@ -749,7 +749,7 @@ type ApiActions = [boolean, () => Promise<ApiTitleInfo>][];
     });
 
     d.addEventListener("dragover", (e) => {
-        e.preventDefault();
+        if (isDragging) e.preventDefault();
         //fixes this old FF bug: https://bugzilla.mozilla.org/show_bug.cgi?id=505521
         if (zeroed < 3 || !isDragging) return;
         return handleCoordChange(e);

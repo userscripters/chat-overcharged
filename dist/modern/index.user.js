@@ -496,7 +496,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         return handleCoordChange(event);
     });
     d.addEventListener("dragover", (e) => {
-        e.preventDefault();
+        if (isDragging)
+            e.preventDefault();
         if (zeroed < 3 || !isDragging)
             return;
         return handleCoordChange(e);

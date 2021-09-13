@@ -1,4 +1,11 @@
 version: 2
+
+registries:
+  github-npm-registry:
+    type: npm-registry
+    url: https://npm.pkg.github.com/userscripters
+    token: "${{secrets.GH_NPM_REGISTRY_TOKEN}}"
+
 updates:
   - package-ecosystem: "npm"
     directory: "/"
@@ -7,6 +14,7 @@ updates:
     target-branch: "master"
     labels:
       - "chores"
+      - "dependencies"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -14,3 +22,7 @@ updates:
       timezone: "UTC"
     allow:
       - dependency-type: "direct"
+    commit-message:
+      prefix: "Chores"
+    registries:
+      - github-npm-registry

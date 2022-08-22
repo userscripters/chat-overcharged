@@ -548,6 +548,27 @@ type ApiActions = [boolean, () => Promise<ApiTitleInfo>][];
         chatInput.value = value.replace(old, `**${old}**`);
     };
 
+    /**
+     * @summary adds italic markdown to the selection
+     * @param config script configuration
+     */
+    const insertItalicMarkdown = (config: Config) => {
+        const inputId = config.ids.chat.input;
+
+        const chatInput = d.getElementById<HTMLTextAreaElement>(inputId);
+        if (!chatInput) return false;
+
+        const { selectionStart, selectionEnd, value } = chatInput;
+
+        if (selectionStart === selectionEnd) {
+            chatInput.value += "**";
+            return true;
+        }
+
+        const old = value.slice(selectionStart, selectionEnd);
+        chatInput.value = value.replace(old, `*${old}*`);
+    };
+
     const openLinkModal = ({ ids, classes }: Config) => {
         const { collapsed } = classes.styles;
 
@@ -678,6 +699,13 @@ type ApiActions = [boolean, () => Promise<ApiTitleInfo>][];
             shift: false,
             caseSensitive: false,
             action: insertBoldMarkdown,
+        },
+        {
+            key: "I",
+            ctrl: true,
+            shift: false,
+            caseSensitive: false,
+            action: insertItalicMarkdown,
         },
         {
             key: "L",

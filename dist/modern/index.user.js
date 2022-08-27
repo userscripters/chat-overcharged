@@ -9,7 +9,7 @@
 // @namespace       userscripters
 // @source          git+https://github.com/userscripters/chat-overcharged.git
 // @supportURL      https://github.com/userscripters/chat-overcharged/issues
-// @version         1.8.1
+// @version         1.9.0
 // ==/UserScript==
 
 "use strict";
@@ -354,6 +354,38 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             ? openModal(modal, cls)
             : closeModal(modal, cls, chatInputId);
     };
+    const wrapValueInMarkdown = (input, opening, closing) => {
+        const { selectionStart, selectionEnd, selectionDirection, value } = input;
+        const before = value.slice(0, selectionStart);
+        const selected = value.slice(selectionStart, selectionEnd);
+        const after = value.slice(selectionEnd);
+        input.value = `${before}${opening}${selected}${closing}${after}`;
+        input.setSelectionRange(selectionStart + opening.length, selectionEnd + closing.length, selectionDirection);
+    };
+    const insertBoldMarkdown = (config) => {
+        const inputId = config.ids.chat.input;
+        const chatInput = d.getElementById(inputId);
+        if (!chatInput)
+            return false;
+        wrapValueInMarkdown(chatInput, "**", "**");
+        return true;
+    };
+    const insertItalicMarkdown = (config) => {
+        const inputId = config.ids.chat.input;
+        const chatInput = d.getElementById(inputId);
+        if (!chatInput)
+            return false;
+        wrapValueInMarkdown(chatInput, "*", "*");
+        return true;
+    };
+    const insertStrikeMarkdown = (config) => {
+        const inputId = config.ids.chat.input;
+        const chatInput = d.getElementById(inputId);
+        if (!chatInput)
+            return false;
+        wrapValueInMarkdown(chatInput, "---", "---");
+        return true;
+    };
     const openLinkModal = ({ ids, classes }) => {
         const { collapsed } = classes.styles;
         const input = d.getElementById(ids.chat.input);
@@ -420,6 +452,27 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         : key.toUpperCase() === keyPressed.toUpperCase();
     addScriptStyles(config);
     const shortcuts = [
+        {
+            key: "S",
+            ctrl: true,
+            shift: true,
+            caseSensitive: false,
+            action: insertStrikeMarkdown,
+        },
+        {
+            key: "B",
+            ctrl: true,
+            shift: false,
+            caseSensitive: false,
+            action: insertBoldMarkdown,
+        },
+        {
+            key: "I",
+            ctrl: true,
+            shift: false,
+            caseSensitive: false,
+            action: insertItalicMarkdown,
+        },
         {
             key: "L",
             ctrl: true,

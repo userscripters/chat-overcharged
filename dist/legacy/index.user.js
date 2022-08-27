@@ -9,7 +9,7 @@
 // @namespace       userscripters
 // @source          git+https://github.com/userscripters/chat-overcharged.git
 // @supportURL      https://github.com/userscripters/chat-overcharged/issues
-// @version         1.8.1
+// @version         1.9.0
 // ==/UserScript==
 
 "use strict";
@@ -397,6 +397,38 @@ var __values = (this && this.__values) || function(o) {
             ? openModal(modal, cls)
             : closeModal(modal, cls, chatInputId);
     };
+    var wrapValueInMarkdown = function (input, opening, closing) {
+        var selectionStart = input.selectionStart, selectionEnd = input.selectionEnd, selectionDirection = input.selectionDirection, value = input.value;
+        var before = value.slice(0, selectionStart);
+        var selected = value.slice(selectionStart, selectionEnd);
+        var after = value.slice(selectionEnd);
+        input.value = "" + before + opening + selected + closing + after;
+        input.setSelectionRange(selectionStart + opening.length, selectionEnd + closing.length, selectionDirection);
+    };
+    var insertBoldMarkdown = function (config) {
+        var inputId = config.ids.chat.input;
+        var chatInput = d.getElementById(inputId);
+        if (!chatInput)
+            return false;
+        wrapValueInMarkdown(chatInput, "**", "**");
+        return true;
+    };
+    var insertItalicMarkdown = function (config) {
+        var inputId = config.ids.chat.input;
+        var chatInput = d.getElementById(inputId);
+        if (!chatInput)
+            return false;
+        wrapValueInMarkdown(chatInput, "*", "*");
+        return true;
+    };
+    var insertStrikeMarkdown = function (config) {
+        var inputId = config.ids.chat.input;
+        var chatInput = d.getElementById(inputId);
+        if (!chatInput)
+            return false;
+        wrapValueInMarkdown(chatInput, "---", "---");
+        return true;
+    };
     var openLinkModal = function (_a) {
         var ids = _a.ids, classes = _a.classes;
         var collapsed = classes.styles.collapsed;
@@ -490,6 +522,27 @@ var __values = (this && this.__values) || function(o) {
     };
     addScriptStyles(config);
     var shortcuts = [
+        {
+            key: "S",
+            ctrl: true,
+            shift: true,
+            caseSensitive: false,
+            action: insertStrikeMarkdown,
+        },
+        {
+            key: "B",
+            ctrl: true,
+            shift: false,
+            caseSensitive: false,
+            action: insertBoldMarkdown,
+        },
+        {
+            key: "I",
+            ctrl: true,
+            shift: false,
+            caseSensitive: false,
+            action: insertItalicMarkdown,
+        },
         {
             key: "L",
             ctrl: true,

@@ -573,6 +573,20 @@ type ApiActions = [boolean, () => Promise<ApiTitleInfo>][];
         return true;
     };
 
+    /**
+     * @summary adds strikeout markdown to the selection
+     * @param config script configuration
+     */
+    const insertStrikeMarkdown = (config: Config) => {
+        const inputId = config.ids.chat.input;
+
+        const chatInput = d.getElementById<HTMLTextAreaElement>(inputId);
+        if (!chatInput) return false;
+
+        wrapValueInMarkdown(chatInput, "---", "---");
+        return true;
+    };
+
     const openLinkModal = ({ ids, classes }: Config) => {
         const { collapsed } = classes.styles;
 
@@ -697,6 +711,13 @@ type ApiActions = [boolean, () => Promise<ApiTitleInfo>][];
     addScriptStyles(config);
 
     const shortcuts: Shortcut[] = [
+        {
+            key: "S",
+            ctrl: true,
+            shift: true,
+            caseSensitive: false,
+            action: insertStrikeMarkdown,
+        },
         {
             key: "B",
             ctrl: true,

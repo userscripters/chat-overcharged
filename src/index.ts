@@ -528,6 +528,24 @@ type ApiActions = [boolean, () => Promise<ApiTitleInfo>][];
     };
 
     /**
+     * @summary wraps a given chat input value in Markdown formatting
+     * @param input chat input to wrap the value of
+     * @param opening opening Markdown tag
+     * @param closing closing Markdown tag
+     */
+    const wrapValueInMarkdown = (input: HTMLTextAreaElement, opening: string, closing: string) => {
+        const { selectionStart, selectionEnd, selectionDirection, value } = input;
+
+        const before = value.slice(0, selectionStart);
+        const selected = value.slice(selectionStart, selectionEnd);
+        const after = value.slice(selectionEnd);
+
+        input.value = `${before}${opening}${selected}${closing}${after}`;
+
+        input.setSelectionRange(selectionStart + opening.length, selectionEnd + closing.length, selectionDirection);
+    };
+
+    /**
      * @summary adds bold markdown to the selection
      * @param config script configuration
      */
@@ -537,15 +555,8 @@ type ApiActions = [boolean, () => Promise<ApiTitleInfo>][];
         const chatInput = d.getElementById<HTMLTextAreaElement>(inputId);
         if (!chatInput) return false;
 
-        const { selectionStart, selectionEnd, selectionDirection, value } = chatInput;
-
-        const before = value.slice(0, selectionStart);
-        const selected = value.slice(selectionStart, selectionEnd);
-        const after = value.slice(selectionEnd);
-
-        chatInput.value = `${before}**${selected}**${after}`;
-
-        chatInput.setSelectionRange(selectionStart + 2, selectionEnd + 2, selectionDirection);
+        wrapValueInMarkdown(chatInput, "**", "**");
+        return true;
     };
 
     /**
@@ -558,15 +569,8 @@ type ApiActions = [boolean, () => Promise<ApiTitleInfo>][];
         const chatInput = d.getElementById<HTMLTextAreaElement>(inputId);
         if (!chatInput) return false;
 
-        const { selectionStart, selectionEnd, selectionDirection, value } = chatInput;
-
-        const before = value.slice(0, selectionStart);
-        const selected = value.slice(selectionStart, selectionEnd);
-        const after = value.slice(selectionEnd);
-
-        chatInput.value = `${before}*${selected}*${after}`;
-
-        chatInput.setSelectionRange(selectionStart + 1, selectionEnd + 1, selectionDirection);
+        wrapValueInMarkdown(chatInput, "*", "*");
+        return true;
     };
 
     const openLinkModal = ({ ids, classes }: Config) => {

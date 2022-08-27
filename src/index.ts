@@ -537,15 +537,15 @@ type ApiActions = [boolean, () => Promise<ApiTitleInfo>][];
         const chatInput = d.getElementById<HTMLTextAreaElement>(inputId);
         if (!chatInput) return false;
 
-        const { selectionStart, selectionEnd, value } = chatInput;
+        const { selectionStart, selectionEnd, selectionDirection, value } = chatInput;
 
-        if (selectionStart === selectionEnd) {
-            chatInput.value += "****";
-            return true;
-        }
+        const before = value.slice(0, selectionStart);
+        const selected = value.slice(selectionStart, selectionEnd);
+        const after = value.slice(selectionEnd);
 
-        const old = value.slice(selectionStart, selectionEnd);
-        chatInput.value = value.replace(old, `**${old}**`);
+        chatInput.value = `${before}**${selected}**${after}`;
+
+        chatInput.setSelectionRange(selectionStart + 2, selectionEnd + 2, selectionDirection);
     };
 
     /**
@@ -558,15 +558,15 @@ type ApiActions = [boolean, () => Promise<ApiTitleInfo>][];
         const chatInput = d.getElementById<HTMLTextAreaElement>(inputId);
         if (!chatInput) return false;
 
-        const { selectionStart, selectionEnd, value } = chatInput;
+        const { selectionStart, selectionEnd, selectionDirection, value } = chatInput;
 
-        if (selectionStart === selectionEnd) {
-            chatInput.value += "**";
-            return true;
-        }
+        const before = value.slice(0, selectionStart);
+        const selected = value.slice(selectionStart, selectionEnd);
+        const after = value.slice(selectionEnd);
 
-        const old = value.slice(selectionStart, selectionEnd);
-        chatInput.value = value.replace(old, `*${old}*`);
+        chatInput.value = `${before}*${selected}*${after}`;
+
+        chatInput.setSelectionRange(selectionStart + 1, selectionEnd + 1, selectionDirection);
     };
 
     const openLinkModal = ({ ids, classes }: Config) => {

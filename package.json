@@ -35,9 +35,9 @@
   },
   "homepage": "https://github.com/userscripters/chat-overcharged#readme",
   "devDependencies": {
-    "@types/chai": "^4.3.10",
-    "@types/mocha": "^10.0.4",
-    "@types/node": "^18.18.10",
+    "@types/chai": "^4.3.11",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^18.18.13",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "@userscripters/generate-headers": "^3.4.0",

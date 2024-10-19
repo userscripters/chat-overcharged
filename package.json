@@ -37,10 +37,10 @@
   "devDependencies": {
     "@types/chai": "^4.3.20",
     "@types/mocha": "^10.0.9",
-    "@types/node": "^20.16.11",
+    "@types/node": "^20.16.13",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
-    "@userscripters/generate-headers": "^3.4.2",
+    "@userscripters/generate-headers": "^3.5.0",
     "@userscripters/generate-readme": "^3.0.2",
     "chai": "^5.1.1",
     "eslint": "^8.57.1",
